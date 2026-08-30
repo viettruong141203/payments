@@ -86,7 +86,6 @@
   <div class="toast" id="toast">Đã sao chép!</div>
 
   <div class="app-container">
-
     <!-- LOADING -->
     <div id="screen-loading" class="screen active" style="justify-content: center; align-items: center; height: 100%;">
       <div class="spinner"></div>
@@ -105,12 +104,9 @@
       
       <!-- GIAO DIỆN CHỜ THANH TOÁN -->
       <div id="bill-unpaid" style="display: flex; flex-direction: column; min-height: 100%; justify-content: center;">
-        
         <div class="card" style="margin-bottom: 0;">
           <div style="text-align: center;">
-            <div class="qr-box">
-              <img id="qr-img" src="" alt="Mã QR" crossorigin="anonymous">
-            </div>
+            <div class="qr-box"><img id="qr-img" src="" alt="Mã QR" crossorigin="anonymous"></div>
             <div>
               <button class="btn-save-qr" onclick="downloadQR()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
@@ -120,57 +116,29 @@
           </div>
           
           <div class="copy-item">
-            <div class="copy-info">
-              <span class="copy-lbl">ngân hàng</span>
-              <span class="copy-val" id="cp-bank">MB Bank</span>
-            </div>
-            <button class="btn-copy-icon" onclick="copyText('cp-bank')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            </button>
+            <div class="copy-info"><span class="copy-lbl">ngân hàng</span><span class="copy-val" id="cp-bank">MB Bank</span></div>
+            <button class="btn-copy-icon" onclick="copyText('cp-bank')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           </div>
           <div class="copy-item">
-            <div class="copy-info">
-              <span class="copy-lbl">số tài khoản</span>
-              <span class="copy-val" id="cp-acc">VQRQAJLBD8864</span>
-            </div>
-            <button class="btn-copy-icon" onclick="copyText('cp-acc')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            </button>
+            <div class="copy-info"><span class="copy-lbl">số tài khoản</span><span class="copy-val" id="cp-acc">VQRQAJLBD8864</span></div>
+            <button class="btn-copy-icon" onclick="copyText('cp-acc')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           </div>
           <div class="copy-item">
-            <div class="copy-info">
-              <span class="copy-lbl">chủ tài khoản</span>
-              <span class="copy-val" id="cp-name">DINH VIET TRUONG</span>
-            </div>
-            <button class="btn-copy-icon" onclick="copyText('cp-name')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            </button>
+            <div class="copy-info"><span class="copy-lbl">chủ tài khoản</span><span class="copy-val" id="cp-name">DINH VIET TRUONG</span></div>
+            <button class="btn-copy-icon" onclick="copyText('cp-name')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           </div>
           <div class="copy-item">
-            <div class="copy-info">
-              <span class="copy-lbl">số tiền thanh toán</span>
-              <span class="copy-val highlight" id="cp-amount">0 VNĐ</span>
-            </div>
-            <button class="btn-copy-icon" onclick="copyText('cp-amount')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            </button>
+            <div class="copy-info"><span class="copy-lbl">số tiền thanh toán</span><span class="copy-val highlight" id="cp-amount">0 VNĐ</span></div>
+            <button class="btn-copy-icon" onclick="copyText('cp-amount')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           </div>
           <div class="copy-item" style="margin-bottom: 0;">
-            <div class="copy-info">
-              <span class="copy-lbl">nội dung (bắt buộc)</span>
-              <span class="copy-val" id="cp-content">---</span>
-            </div>
-            <button class="btn-copy-icon" onclick="copyText('cp-content')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            </button>
+            <div class="copy-info"><span class="copy-lbl">nội dung (bắt buộc)</span><span class="copy-val" id="cp-content">---</span></div>
+            <button class="btn-copy-icon" onclick="copyText('cp-content')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           </div>
         </div>
         
         <div class="note-box">
-          <div class="note-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            lưu ý quan trọng
-          </div>
+          <div class="note-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> lưu ý quan trọng</div>
           <ul class="note-list">
             <li><span>1.</span> Nhập chính xác số tiền và nội dung để hệ thống tự động duyệt.</li>
             <li><span>2.</span> Nếu không quét được QR, vui lòng dùng nút copy bên trên.</li>
@@ -181,17 +149,12 @@
 
       <!-- GIAO DIỆN ĐÃ THANH TOÁN THÀNH CÔNG -->
       <div id="bill-paid" style="display: none; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
-        <div class="success-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        </div>
+        <div class="success-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
         <h2 style="margin: 0 0 24px; color: var(--primary); font-size: 22px;">Giao dịch thành công</h2>
-        
         <div class="card" style="margin: 0; text-align: left;">
           <div class="row"><span class="label">mã giao dịch</span><span class="value" id="bl-paid-id" style="font-family: monospace;">---</span></div>
           <div class="row"><span class="label">thời gian thanh toán</span><span class="value" id="bl-paid-time">--:--</span></div>
-          <div class="row">
-            <span class="label">số tiền đã nhận</span><span class="value" id="bl-paid-amount" style="color: var(--primary); font-size: 16px;">0 VNĐ</span>
-          </div>
+          <div class="row"><span class="label">số tiền đã nhận</span><span class="value" id="bl-paid-amount" style="color: var(--primary); font-size: 16px;">0 VNĐ</span></div>
         </div>
       </div>
     </div>
@@ -199,7 +162,7 @@
 
   <script>
     // ==========================================
-    // CẤU HÌNH ĐỌC TRỰC TIẾP TỪ URL SPREADSHEET
+    // CẤU HÌNH ĐỌC TRỰC TIẾP TỪ URL SPREADSHEET BẰNG JSON CỦA GOOGLE
     // ==========================================
     const SHEET_ID = '1pKyvtyL9_aYt98nGbgYadu0YQgD7N9EJI7ZkMOg1xLo';
     
@@ -210,26 +173,18 @@
     let currentId = "";
     let urlParams;
     let pollingInterval;
-
-    // Hàm dọn dẹp ký tự thừa do định dạng Google Sheet sinh ra
-    function cleanString(str) {
-        if (!str) return "";
-        let s = String(str).trim();
-        if (s.startsWith('"') && s.endsWith('"')) {
-            s = s.substring(1, s.length - 1);
-        }
-        return s.trim();
-    }
+    let timeoutFallback;
 
     function showError(msg) {
-        if (pollingInterval) clearInterval(pollingInterval);
+        if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
+        if (timeoutFallback) { clearTimeout(timeoutFallback); timeoutFallback = null; }
         document.getElementById('error-msg').innerText = msg;
         switchScreen('error');
     }
 
     window.onload = function() {
       urlParams = new URLSearchParams(window.location.search);
-      currentId = urlParams.get('id');
+      currentId = (urlParams.get('id') || "").trim();
       const am = urlParams.get('am'); 
       const nd = urlParams.get('nd'); 
       
@@ -238,7 +193,12 @@
         return;
       }
 
-      // Tải giao diện QR ngay lập tức nếu link đã có thông số tiền & nội dung
+      timeoutFallback = setTimeout(() => {
+          if (document.getElementById('screen-loading').classList.contains('active')) {
+              showError("Lỗi kết nối. Vui lòng tải lại trang.");
+          }
+      }, 7000);
+
       if (am && nd) {
           renderData({
               id: currentId,
@@ -246,6 +206,7 @@
               content: nd,
               status: "chờ thanh toán"
           });
+          clearTimeout(timeoutFallback);
           switchScreen('bill');
           startPolling();
       } else {
@@ -254,47 +215,54 @@
     };
 
     function fetchSheetData(isPolling = false) {
-      const tsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:tsv&t=${new Date().getTime()}`;
+      // Dùng cổng JSON API chuyên dụng của Google (Tránh lỗi hoàn toàn)
+      const jsonUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&t=${new Date().getTime()}`;
 
-      fetch(tsvUrl)
-        .then(res => {
-            if (!res.ok) throw new Error("Quyền truy cập bị từ chối");
-            return res.text();
-        })
+      fetch(jsonUrl)
+        .then(res => res.text())
         .then(text => {
-          const lines = text.split('\n');
-          if (lines.length < 2) return;
-
-          // THUẬT TOÁN MỚI: BỐC THẲNG VỊ TRÍ CỘT THEO ẢNH BẠN GỬI
-          // Cột A (0): Mã GD | Cột C (2): Số tiền | Cột D (3): Nội dung | Cột E (4): Trạng thái | Cột F (5): Thời gian
-          const colId = 0; 
-          const colAm = 2; 
-          const colNd = 3; 
-          const colSt = 4; 
-          const colTm = 5; 
-
-          let foundData = null;
+          // Bóc tách mảng JSON từ phản hồi của Google
+          const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S\w]+)\);?/);
           
-          // Quét ngược từ dưới lên trên, bắt đầu từ dòng cuối cùng lên dòng 2 (bỏ qua dòng 1 tiêu đề)
-          for (let i = lines.length - 1; i >= 1; i--) {
-              const cols = lines[i].split('\t');
-              if (cols.length <= colId) continue;
+          if (!match || !match[1]) {
+              if (!isPolling && !urlParams.get('am')) showError("Không thể đọc dữ liệu. Sheet có thể đang bị khóa.");
+              return;
+          }
+
+          const dataJSON = JSON.parse(match[1]);
+          if (dataJSON.status === "error") {
+              if (!isPolling && !urlParams.get('am')) showError("Lỗi từ Google: " + dataJSON.errors[0].message);
+              return;
+          }
+
+          const rows = dataJSON.table.rows;
+          let foundData = null;
+
+          // Quét ngược mảng từ dưới lên
+          for (let i = rows.length - 1; i >= 0; i--) {
+              const row = rows[i];
+              if (!row || !row.c || row.c[0] == null) continue;
               
-              const rowId = cleanString(cols[colId]);
+              // Mã giao dịch (Cột A - index 0)
+              const rowId = String(row.c[0].v).trim();
+              
               if (rowId === currentId) {
+                  // Cột C (index 2): Số tiền. Cột D (index 3): Nội dung
+                  // Cột E (index 4): Trạng thái. Cột F (index 5): Thời gian
+                  let rawAm = row.c[2] && row.c[2].v != null ? String(Math.round(Number(row.c[2].v))) : "";
+                  
                   foundData = {
                       id: rowId,
-                      amount: cols.length > colAm ? cleanString(cols[colAm]) : "",
-                      content: cols.length > colNd ? cleanString(cols[colNd]) : "",
-                      status: cols.length > colSt ? cleanString(cols[colSt]).toLowerCase() : "",
-                      paymentTime: cols.length > colTm ? cleanString(cols[colTm]) : ""
+                      amount: rawAm,
+                      content: row.c[3] && row.c[3].v != null ? String(row.c[3].v) : "",
+                      status: row.c[4] && row.c[4].v != null ? String(row.c[4].v).toLowerCase() : "",
+                      paymentTime: row.c[5] ? String(row.c[5].f || row.c[5].v || "") : ""
                   };
                   break;
               }
           }
 
           if (foundData) {
-              // Ưu tiên dữ liệu truyền từ URL nếu có
               if (urlParams.get('am')) foundData.amount = urlParams.get('am');
               if (urlParams.get('nd')) foundData.content = urlParams.get('nd');
 
@@ -303,9 +271,13 @@
               // CHỈ nhảy sang màu xanh khi có cụm từ "đã thanh toán"
               if (foundData.status.includes('đã thanh toán') || foundData.status.includes('thành công')) {
                   if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
+                  if (timeoutFallback) clearTimeout(timeoutFallback);
                   if (isPolling) showToast("Thanh toán thành công!");
               } else {
-                  if (!isPolling) switchScreen('bill');
+                  if (!isPolling) {
+                      clearTimeout(timeoutFallback);
+                      switchScreen('bill');
+                  }
                   if (!pollingInterval) startPolling();
               }
           } else {
@@ -314,7 +286,7 @@
         })
         .catch(err => {
             if (!isPolling && !urlParams.get('am')) {
-                showError("Đứt kết nối mạng hoặc Google chậm phản hồi. Vui lòng tải lại trang.");
+                showError("Đứt kết nối mạng hoặc Google chậm phản hồi.");
             }
         });
     }
@@ -333,12 +305,12 @@
       let rawAmount = String(data.amount).replace(/[^0-9]/g, '');
       let displayAmount = rawAmount ? rawAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VNĐ" : "0 VNĐ";
 
-      // ĐIỀN THẺ CHƯA THANH TOÁN
+      // Nạp thẻ Chưa thanh toán
       document.getElementById('cp-amount').innerText = displayAmount;
       document.getElementById('cp-content').innerText = data.content;
       document.getElementById('qr-img').src = 'https://img.vietqr.io/image/' + BANK_ID + '-' + ACCOUNT_NO + '-qr_only.png?amount=' + rawAmount + '&addInfo=' + encodeURIComponent(data.content || '') + '&accountName=' + encodeURIComponent(ACCOUNT_NAME);
       
-      // ĐIỀN THẺ ĐÃ THANH TOÁN
+      // Nạp thẻ Đã thanh toán
       document.getElementById('bl-paid-id').innerText = data.id;
       document.getElementById('bl-paid-time').innerText = data.paymentTime || '--:--';
       document.getElementById('bl-paid-amount').innerText = displayAmount;
