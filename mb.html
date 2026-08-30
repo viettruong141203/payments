@@ -199,7 +199,7 @@
 
   <script>
     // ==========================================
-    // CẤU HÌNH ĐỌC TRỰC TIẾP TỪ URL SPREADSHEET (KHÔNG DÙNG APP SCRIPT)
+    // CẤU HÌNH ĐỌC TRỰC TIẾP TỪ URL SPREADSHEET
     // ==========================================
     const SHEET_ID = '1pKyvtyL9_aYt98nGbgYadu0YQgD7N9EJI7ZkMOg1xLo';
     
@@ -210,10 +210,11 @@
     let currentId = "";
     let urlParams;
     let pollingInterval;
+    let timeoutFallback;
 
-    // Loại bỏ dấu ngoặc kép thừa "" sinh ra từ cấu trúc TSV của Google
+    // Hàm dọn dẹp ký tự thừa do định dạng Google Sheet sinh ra
     function cleanString(str) {
-        if (str == null) return "";
+        if (!str) return "";
         let s = String(str).trim();
         if (s.startsWith('"') && s.endsWith('"')) {
             s = s.substring(1, s.length - 1);
@@ -222,6 +223,8 @@
     }
 
     function showError(msg) {
+        if (timeoutFallback) clearTimeout(timeoutFallback);
+        if (pollingInterval) clearInterval(pollingInterval);
         document.getElementById('error-msg').innerText = msg;
         switchScreen('error');
     }
@@ -236,15 +239,15 @@
         showError("Vui lòng quét QR hoặc truy cập từ link hệ thống cung cấp (Thiếu mã ID).");
         return;
       }
-      
-      // Lưới an toàn: Báo lỗi nếu 8s quá tải mạng
-      setTimeout(() => {
-          if (document.getElementById('screen-loading').classList.contains('active')) {
-              showError("Lỗi mạng hoặc kết nối bị từ chối!\nVui lòng đảm bảo Google Sheet đã mở quyền 'Bất kỳ ai có liên kết'.");
-          }
-      }, 8000);
 
-      // Tải giao diện siêu tốc 0 giây
+      // Bộ đếm thời gian an toàn: Chống kẹt màn hình "Đang kết nối hệ thống..."
+      timeoutFallback = setTimeout(() => {
+          if (document.getElementById('screen-loading').classList.contains('active')) {
+              showError("Bị chặn kết nối (Lỗi CORS).\n100% do File Google Sheet chưa mở quyền truy cập 'Bất kỳ ai có liên kết'.");
+          }
+      }, 7000);
+
+      // Tải giao diện QR ngay lập tức nếu link đã có thông số tiền & nội dung
       if (am && nd) {
           renderData({
               id: currentId,
@@ -252,32 +255,29 @@
               content: nd,
               status: "chờ thanh toán"
           });
+          clearTimeout(timeoutFallback);
           switchScreen('bill');
           startPolling();
       } else {
+          // Bắt đầu kéo dữ liệu từ Sheet nếu khách truy cập bằng link ngắn
           fetchSheetData(false);
       }
     };
 
     function fetchSheetData(isPolling = false) {
-      // Dùng cổng gviz/tq hỗ trợ xuất dữ liệu TSV (tránh bị lỗi chặn file CORS)
+      // Cổng gọi TSV của Google không bị chặn chéo miền (Nếu file đã Public)
       const tsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:tsv&t=${new Date().getTime()}`;
 
       fetch(tsvUrl)
         .then(res => {
-            if (!res.ok) throw new Error("Mã lỗi mạng: " + res.status);
+            if (!res.ok) throw new Error("Quyền truy cập bị từ chối");
             return res.text();
         })
         .then(text => {
-          if (!text || text.trim() === "") {
-              if (!isPolling && !urlParams.get('am')) showError("Dữ liệu trong bảng đang trống.");
-              return;
-          }
-
-          // Kiểm tra xem Google có trả về mã HTML của trang đăng nhập không (Tức là Sheet đang khóa)
+          // BỘ LỌC BẢO MẬT: Bị Google đẩy về trang Login tức là file đang bị Private
           if (text.toLowerCase().includes('<!doctype') || text.toLowerCase().includes('<html')) {
               if (!isPolling && !urlParams.get('am')) {
-                  showError("Google Sheet đang bị khóa!\nVui lòng vào file Sheet > Chia sẻ > 'Bất kỳ ai có liên kết'.");
+                  showError("Bị chặn kết nối (Lỗi CORS).\nFile Google Sheet đang bị khóa riêng tư, vui lòng mở quyền 'Bất kỳ ai có liên kết'.");
               }
               return;
           }
@@ -286,14 +286,14 @@
           let headerRowIndex = -1;
           let colId = -1, colAm = -1, colNd = -1, colSt = -1, colTm = -1;
 
-          // Quét 10 dòng đầu để tìm dòng chứa tiêu đề
+          // Tìm chính xác dòng chứa Tiêu đề trong 10 dòng đầu
           for (let i = 0; i < Math.min(10, lines.length); i++) {
               const headers = lines[i].split('\t').map(h => cleanString(h).toLowerCase());
-              colId = headers.findIndex(h => h === 'mã giao dịch' || h.includes('mã gd') || h === 'id' || h.includes('mã'));
               
+              colId = headers.findIndex(h => h === 'mã giao dịch' || h.includes('mã gd') || h === 'id');
               if (colId !== -1) {
                   headerRowIndex = i;
-                  colAm = headers.findIndex(h => h.includes('số tiền') || h.includes('tiền') || h.includes('amount'));
+                  colAm = headers.findIndex(h => h.includes('số tiền') || h.includes('amount'));
                   colNd = headers.findIndex(h => h.includes('nội dung') || h.includes('content'));
                   colSt = headers.findIndex(h => h.includes('trạng thái') || h.includes('status'));
                   colTm = headers.findIndex(h => h.includes('thời gian thanh toán') || h.includes('hoàn tất'));
@@ -302,12 +302,12 @@
           }
 
           if (headerRowIndex === -1) {
-              if (!isPolling && !urlParams.get('am')) showError("Cấu trúc bảng không đúng! Không tìm thấy cột 'Mã giao dịch'.");
+              if (!isPolling && !urlParams.get('am')) showError("Cấu trúc bảng không hợp lệ! Không tìm thấy cột 'Mã giao dịch'.");
               return;
           }
 
           let foundData = null;
-          // Quét từ dưới lên trên để lấy dòng cuối cùng có ID trùng khớp
+          // Quét ngược từ dưới lên để cập nhật dữ liệu mới nhất
           for (let i = lines.length - 1; i > headerRowIndex; i--) {
               const cols = lines[i].split('\t');
               if (cols.length <= colId) continue;
@@ -326,19 +326,22 @@
           }
 
           if (foundData) {
-              // Ưu tiên param từ URL nếu có
+              // Ưu tiên dữ liệu truyền từ URL nếu có
               if (urlParams.get('am')) foundData.amount = urlParams.get('am');
               if (urlParams.get('nd')) foundData.content = urlParams.get('nd');
 
               renderData(foundData);
 
-              // CHỈ KHI TRẠNG THÁI CHUẨN XÁC LÀ "đã thanh toán"
-              if (foundData.status === 'đã thanh toán' || foundData.status.includes('thành công')) {
+              // CHỈ nhảy sang màu xanh khi có cụm từ "đã thanh toán"
+              if (foundData.status.includes('đã thanh toán') || foundData.status.includes('thành công')) {
                   if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
+                  if (timeoutFallback) clearTimeout(timeoutFallback);
                   if (isPolling) showToast("Thanh toán thành công!");
               } else {
-                  // Chờ thanh toán -> Giữ mã QR
-                  if (!isPolling) switchScreen('bill');
+                  if (!isPolling) {
+                      clearTimeout(timeoutFallback);
+                      switchScreen('bill');
+                  }
                   if (!pollingInterval) startPolling();
               }
           } else {
@@ -346,7 +349,10 @@
           }
         })
         .catch(err => {
-            if (!isPolling && !urlParams.get('am')) showError("Trình duyệt chặn kết nối hoặc mất mạng. Chi tiết: " + err.message);
+            if (!isPolling && !urlParams.get('am')) {
+                // Lỗi mạng hoặc lỗi CORS hoàn toàn do trình duyệt chặn
+                showError("Lỗi kết nối tới máy chủ Google.\nHãy chắc chắn 100% File Sheet đã đổi quyền thành 'Bất kỳ ai có liên kết'.");
+            }
         });
     }
 
@@ -359,22 +365,21 @@
 
     function renderData(data) {
       var statusStr = data.status || '';
-      var isPaid = (statusStr === 'đã thanh toán' || statusStr.includes('thành công'));
+      var isPaid = (statusStr.includes('đã thanh toán') || statusStr.includes('thành công'));
 
       let rawAmount = String(data.amount).replace(/[^0-9]/g, '');
       let displayAmount = rawAmount ? rawAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VNĐ" : "0 VNĐ";
 
-      // ĐIỀN THẺ CHƯA THANH TOÁN
+      // Nạp nội dung thẻ Thanh toán
       document.getElementById('cp-amount').innerText = displayAmount;
       document.getElementById('cp-content').innerText = data.content;
       document.getElementById('qr-img').src = 'https://img.vietqr.io/image/' + BANK_ID + '-' + ACCOUNT_NO + '-qr_only.png?amount=' + rawAmount + '&addInfo=' + encodeURIComponent(data.content || '') + '&accountName=' + encodeURIComponent(ACCOUNT_NAME);
       
-      // ĐIỀN THẺ ĐÃ THANH TOÁN
+      // Nạp nội dung thẻ Thành công
       document.getElementById('bl-paid-id').innerText = data.id;
       document.getElementById('bl-paid-time').innerText = data.paymentTime || '--:--';
       document.getElementById('bl-paid-amount').innerText = displayAmount;
 
-      // CHUYỂN ĐỔI MÀN HÌNH NẾU ĐÃ THANH TOÁN
       if (isPaid) {
         document.getElementById('bill-unpaid').style.display = 'none';
         document.getElementById('bill-paid').style.display = 'flex';
@@ -384,7 +389,7 @@
       }
     }
 
-    // Quét ngầm file Sheet 1.5 giây / lần
+    // Quét ngầm vòng lặp 1.5 giây / lần
     function startPolling() {
       if(pollingInterval) clearInterval(pollingInterval);
       pollingInterval = setInterval(function() {
