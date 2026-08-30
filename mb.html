@@ -210,7 +210,6 @@
     let currentId = "";
     let urlParams;
     let pollingInterval;
-    let timeoutFallback;
 
     // Hàm dọn dẹp ký tự thừa do định dạng Google Sheet sinh ra
     function cleanString(str) {
@@ -223,7 +222,6 @@
     }
 
     function showError(msg) {
-        if (timeoutFallback) clearTimeout(timeoutFallback);
         if (pollingInterval) clearInterval(pollingInterval);
         document.getElementById('error-msg').innerText = msg;
         switchScreen('error');
@@ -240,13 +238,6 @@
         return;
       }
 
-      // Bộ đếm thời gian an toàn: Chống kẹt màn hình "Đang kết nối hệ thống..."
-      timeoutFallback = setTimeout(() => {
-          if (document.getElementById('screen-loading').classList.contains('active')) {
-              showError("Bị chặn kết nối (Lỗi CORS).\n100% do File Google Sheet chưa mở quyền truy cập 'Bất kỳ ai có liên kết'.");
-          }
-      }, 7000);
-
       // Tải giao diện QR ngay lập tức nếu link đã có thông số tiền & nội dung
       if (am && nd) {
           renderData({
@@ -255,17 +246,14 @@
               content: nd,
               status: "chờ thanh toán"
           });
-          clearTimeout(timeoutFallback);
           switchScreen('bill');
           startPolling();
       } else {
-          // Bắt đầu kéo dữ liệu từ Sheet nếu khách truy cập bằng link ngắn
           fetchSheetData(false);
       }
     };
 
     function fetchSheetData(isPolling = false) {
-      // Cổng gọi TSV của Google không bị chặn chéo miền (Nếu file đã Public)
       const tsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:tsv&t=${new Date().getTime()}`;
 
       fetch(tsvUrl)
@@ -274,41 +262,21 @@
             return res.text();
         })
         .then(text => {
-          // BỘ LỌC BẢO MẬT: Bị Google đẩy về trang Login tức là file đang bị Private
-          if (text.toLowerCase().includes('<!doctype') || text.toLowerCase().includes('<html')) {
-              if (!isPolling && !urlParams.get('am')) {
-                  showError("Bị chặn kết nối (Lỗi CORS).\nFile Google Sheet đang bị khóa riêng tư, vui lòng mở quyền 'Bất kỳ ai có liên kết'.");
-              }
-              return;
-          }
-
           const lines = text.split('\n');
-          let headerRowIndex = -1;
-          let colId = -1, colAm = -1, colNd = -1, colSt = -1, colTm = -1;
+          if (lines.length < 2) return;
 
-          // Tìm chính xác dòng chứa Tiêu đề trong 10 dòng đầu
-          for (let i = 0; i < Math.min(10, lines.length); i++) {
-              const headers = lines[i].split('\t').map(h => cleanString(h).toLowerCase());
-              
-              colId = headers.findIndex(h => h === 'mã giao dịch' || h.includes('mã gd') || h === 'id');
-              if (colId !== -1) {
-                  headerRowIndex = i;
-                  colAm = headers.findIndex(h => h.includes('số tiền') || h.includes('amount'));
-                  colNd = headers.findIndex(h => h.includes('nội dung') || h.includes('content'));
-                  colSt = headers.findIndex(h => h.includes('trạng thái') || h.includes('status'));
-                  colTm = headers.findIndex(h => h.includes('thời gian thanh toán') || h.includes('hoàn tất'));
-                  break;
-              }
-          }
-
-          if (headerRowIndex === -1) {
-              if (!isPolling && !urlParams.get('am')) showError("Cấu trúc bảng không hợp lệ! Không tìm thấy cột 'Mã giao dịch'.");
-              return;
-          }
+          // THUẬT TOÁN MỚI: BỐC THẲNG VỊ TRÍ CỘT THEO ẢNH BẠN GỬI
+          // Cột A (0): Mã GD | Cột C (2): Số tiền | Cột D (3): Nội dung | Cột E (4): Trạng thái | Cột F (5): Thời gian
+          const colId = 0; 
+          const colAm = 2; 
+          const colNd = 3; 
+          const colSt = 4; 
+          const colTm = 5; 
 
           let foundData = null;
-          // Quét ngược từ dưới lên để cập nhật dữ liệu mới nhất
-          for (let i = lines.length - 1; i > headerRowIndex; i--) {
+          
+          // Quét ngược từ dưới lên trên, bắt đầu từ dòng cuối cùng lên dòng 2 (bỏ qua dòng 1 tiêu đề)
+          for (let i = lines.length - 1; i >= 1; i--) {
               const cols = lines[i].split('\t');
               if (cols.length <= colId) continue;
               
@@ -316,10 +284,10 @@
               if (rowId === currentId) {
                   foundData = {
                       id: rowId,
-                      amount: colAm !== -1 ? cleanString(cols[colAm]) : "",
-                      content: colNd !== -1 ? cleanString(cols[colNd]) : "",
-                      status: colSt !== -1 ? cleanString(cols[colSt]).toLowerCase() : "",
-                      paymentTime: colTm !== -1 ? cleanString(cols[colTm]) : ""
+                      amount: cols.length > colAm ? cleanString(cols[colAm]) : "",
+                      content: cols.length > colNd ? cleanString(cols[colNd]) : "",
+                      status: cols.length > colSt ? cleanString(cols[colSt]).toLowerCase() : "",
+                      paymentTime: cols.length > colTm ? cleanString(cols[colTm]) : ""
                   };
                   break;
               }
@@ -335,23 +303,18 @@
               // CHỈ nhảy sang màu xanh khi có cụm từ "đã thanh toán"
               if (foundData.status.includes('đã thanh toán') || foundData.status.includes('thành công')) {
                   if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
-                  if (timeoutFallback) clearTimeout(timeoutFallback);
                   if (isPolling) showToast("Thanh toán thành công!");
               } else {
-                  if (!isPolling) {
-                      clearTimeout(timeoutFallback);
-                      switchScreen('bill');
-                  }
+                  if (!isPolling) switchScreen('bill');
                   if (!pollingInterval) startPolling();
               }
           } else {
-              if (!isPolling && !urlParams.get('am')) showError("Mã giao dịch [" + currentId + "] không tồn tại trong hệ thống.");
+              if (!isPolling && !urlParams.get('am')) showError("Mã giao dịch [" + currentId + "] không tồn tại trong bảng.");
           }
         })
         .catch(err => {
             if (!isPolling && !urlParams.get('am')) {
-                // Lỗi mạng hoặc lỗi CORS hoàn toàn do trình duyệt chặn
-                showError("Lỗi kết nối tới máy chủ Google.\nHãy chắc chắn 100% File Sheet đã đổi quyền thành 'Bất kỳ ai có liên kết'.");
+                showError("Đứt kết nối mạng hoặc Google chậm phản hồi. Vui lòng tải lại trang.");
             }
         });
     }
@@ -370,16 +333,17 @@
       let rawAmount = String(data.amount).replace(/[^0-9]/g, '');
       let displayAmount = rawAmount ? rawAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VNĐ" : "0 VNĐ";
 
-      // Nạp nội dung thẻ Thanh toán
+      // ĐIỀN THẺ CHƯA THANH TOÁN
       document.getElementById('cp-amount').innerText = displayAmount;
       document.getElementById('cp-content').innerText = data.content;
       document.getElementById('qr-img').src = 'https://img.vietqr.io/image/' + BANK_ID + '-' + ACCOUNT_NO + '-qr_only.png?amount=' + rawAmount + '&addInfo=' + encodeURIComponent(data.content || '') + '&accountName=' + encodeURIComponent(ACCOUNT_NAME);
       
-      // Nạp nội dung thẻ Thành công
+      // ĐIỀN THẺ ĐÃ THANH TOÁN
       document.getElementById('bl-paid-id').innerText = data.id;
       document.getElementById('bl-paid-time').innerText = data.paymentTime || '--:--';
       document.getElementById('bl-paid-amount').innerText = displayAmount;
 
+      // CHUYỂN ĐỔI MÀN HÌNH NẾU ĐÃ THANH TOÁN
       if (isPaid) {
         document.getElementById('bill-unpaid').style.display = 'none';
         document.getElementById('bill-paid').style.display = 'flex';
