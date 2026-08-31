@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>Thanh toán online</title>
+  <title>Thanh toán tự động</title>
   
   <link rel="preconnect" href="https://script.google.com" crossorigin>
   <link rel="preconnect" href="https://img.vietqr.io" crossorigin>
@@ -11,164 +11,203 @@
   
   <style>
     :root {
-      --primary: #0052CC; 
-      --primary-light: #E5EFFF;
+      --primary: #2563EB; 
+      --primary-glow: rgba(37, 99, 235, 0.4);
+      --secondary: #8B5CF6;
       --success: #10B981;
       --danger: #EF4444;
-      --bg-color: #F0F2F5;
-      --card-bg: #FFFFFF;
-      --text-main: #111827;
-      --text-muted: #6B7280;
-      --border-color: #E5E7EB;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --glass-bg: rgba(255, 255, 255, 0.75);
+      --glass-border: rgba(255, 255, 255, 0.6);
+      --item-bg: rgba(255, 255, 255, 0.9);
     }
     
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
     html, body { 
       width: 100%; height: 100%; margin: 0; padding: 0; 
-      overflow: hidden; 
-      overscroll-behavior: none; 
+      overflow: hidden; overscroll-behavior: none; 
     }
 
     body { 
       font-family: 'Plus Jakarta Sans', sans-serif; 
-      background-color: var(--bg-color);
+      background-color: #F8FAFC;
       display: flex; justify-content: center; align-items: center;
       color: var(--text-main); 
+      position: relative;
+    }
+
+    /* Hiệu ứng Nền Aura AI Tương Lai */
+    .bg-aura {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      overflow: hidden; z-index: 0; pointer-events: none;
+    }
+    .orb {
+      position: absolute; border-radius: 50%; filter: blur(60px);
+      animation: floatOrb 10s infinite alternate ease-in-out;
+    }
+    .orb-1 { width: 300px; height: 300px; background: rgba(37, 99, 235, 0.15); top: -50px; left: -100px; }
+    .orb-2 { width: 250px; height: 250px; background: rgba(139, 92, 246, 0.15); bottom: -50px; right: -50px; animation-delay: -5s; }
+    
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(30px, 50px) scale(1.1); }
     }
 
     .app-container { 
       width: 100%; max-width: 400px; height: 100%; max-height: 100dvh;
-      display: flex; flex-direction: column; position: relative;
+      display: flex; flex-direction: column; position: relative; z-index: 1;
     }
     
     .screen { 
       display: none; flex-direction: column; flex-grow: 1; 
-      padding: clamp(10px, 3vh, 20px); 
+      padding: clamp(12px, 4vh, 24px); 
       justify-content: center;
-      animation: fadeIn 0.3s ease-out; 
+      animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
     }
     .screen.active { display: flex; }
     
-    @keyframes fadeIn { 
-      0% { opacity: 0; transform: scale(0.98); } 
-      100% { opacity: 1; transform: scale(1); } 
+    @keyframes slideUpFade { 
+      0% { opacity: 0; transform: translateY(30px) scale(0.97); } 
+      100% { opacity: 1; transform: translateY(0) scale(1); } 
     }
     
-    /* Khối thẻ chính */
+    /* Thẻ Glassmorphism */
     .card { 
-      background: var(--card-bg); 
-      border-radius: 20px; 
-      padding: clamp(12px, 3vh, 16px); 
-      box-shadow: 0 8px 30px rgba(0,0,0,0.04); 
-      border: 1px solid rgba(255,255,255,0.8);
-      display: flex; flex-direction: column; gap: 8px;
-    }
-
-    /* VÙNG LOGO NGÂN HÀNG */
-    .bank-logo-container {
-      display: flex; justify-content: center; align-items: center;
-      padding-bottom: 10px; margin-bottom: 4px;
-      border-bottom: 1px dashed #E5E7EB;
-    }
-    .bank-logo-container img {
-      height: 28px; width: auto; object-fit: contain;
+      background: var(--glass-bg); 
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-radius: 28px; 
+      padding: clamp(16px, 3.5vh, 20px); 
+      box-shadow: 0 24px 40px -10px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.8); 
+      border: 1px solid var(--glass-border);
+      display: flex; flex-direction: column; gap: 10px;
     }
     
-    /* Vùng chứa QR */
+    /* Vùng chứa QR và AI Scanner */
     .qr-section {
       display: flex; flex-direction: column; align-items: center; 
-      margin-bottom: 2px;
+      margin-bottom: 6px; position: relative;
     }
     
-    .qr-box { 
-      background: #fff; padding: 10px; border-radius: 16px; 
-      border: 1px solid var(--border-color); 
-      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-      margin-bottom: 10px;
+    .qr-wrapper {
+      position: relative; background: #fff; padding: 12px; 
+      border-radius: 20px; border: 1px solid #E2E8F0; 
+      box-shadow: 0 10px 30px -5px var(--primary-glow);
+      margin-bottom: 12px; overflow: hidden;
     }
     
-    .qr-box img { 
-      width: auto; height: clamp(120px, 24vh, 170px); aspect-ratio: 1/1; 
-      border-radius: 8px; display: block; 
+    /* Vạch quét AI Scanner */
+    .ai-scanner {
+      position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      box-shadow: 0 2px 10px var(--primary);
+      animation: scanAI 2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+    }
+    @keyframes scanAI {
+      0% { top: 0%; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    .qr-wrapper img { 
+      width: auto; height: clamp(140px, 26vh, 190px); aspect-ratio: 1/1; 
+      border-radius: 12px; display: block; position: relative; z-index: 1;
     }
     
+    /* Nút lưu QR */
     .btn-save-qr { 
-      background: var(--primary-light); color: var(--primary); 
-      border: none; border-radius: 20px; padding: 6px 16px; 
-      font-size: 12px; font-weight: 700; cursor: pointer; 
-      display: inline-flex; align-items: center; gap: 6px; 
-      transition: all 0.2s; 
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff; border: none; border-radius: 24px; padding: 8px 20px; 
+      font-size: 13px; font-weight: 700; cursor: pointer; 
+      display: inline-flex; align-items: center; gap: 8px; 
+      transition: all 0.2s; box-shadow: 0 6px 15px -3px var(--primary-glow);
     }
-    .btn-save-qr:active { transform: scale(0.95); opacity: 0.8; }
+    .btn-save-qr:active { transform: scale(0.94); box-shadow: 0 3px 8px -2px var(--primary-glow); }
     .btn-save-qr svg { width: 14px; height: 14px; }
 
-    /* Các dòng thông tin */
-    .info-list {
-      display: flex; flex-direction: column; gap: 6px;
-    }
+    /* Các dòng thông tin bóng bẩy */
+    .info-list { display: flex; flex-direction: column; gap: 8px; }
     
     .copy-item { 
       display: flex; justify-content: space-between; align-items: center; 
-      padding: 8px 12px; background: #F9FAFB; 
-      border: 1px solid var(--border-color); border-radius: 12px; 
+      padding: 10px 14px; background: var(--item-bg); 
+      border: 1px solid #FFFFFF; border-radius: 16px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: all 0.2s;
     }
-    .copy-item:active { background: #F3F4F6; }
+    .copy-item:active { transform: scale(0.98); background: #F8FAFC; }
     
     .copy-info { display: flex; flex-direction: column; overflow: hidden; padding-right: 10px; width: 100%; }
-    .copy-lbl { font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 2px; }
-    .copy-val { font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .copy-val.highlight { color: var(--primary); font-size: 15px; font-weight: 800; }
+    .copy-lbl { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .copy-val { font-size: 14px; font-weight: 800; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .copy-val.highlight { color: var(--primary); font-size: 16px; }
     
     .btn-copy-icon { 
-      background: #FFFFFF; border: 1px solid #D1D5DB; color: var(--text-muted); 
-      border-radius: 8px; width: 30px; height: 30px; display: flex; 
-      align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.1s; 
+      background: #F1F5F9; border: none; color: var(--primary); 
+      border-radius: 10px; width: 34px; height: 34px; display: flex; 
+      align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; 
     }
-    .btn-copy-icon:active { background: var(--primary); color: #fff; border-color: var(--primary); transform: scale(0.9); }
-    .btn-copy-icon svg { width: 14px; height: 14px; }
+    .btn-copy-icon:active { background: var(--primary); color: #fff; transform: scale(0.85); }
+    .btn-copy-icon svg { width: 15px; height: 15px; }
 
-    /* Ghi chú gọn gàng */
+    /* Box ghi chú kiểu Minimalist */
     .note-box { 
-      background: #FFFBEB; border: 1px dashed #FCD34D; 
-      border-radius: 12px; padding: 10px 12px; margin-top: 6px; 
+      background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(255,255,255,0.6); 
+      border-radius: 16px; padding: 12px 14px; margin-top: 6px; 
     }
-    .note-title { font-size: 12px; font-weight: 800; color: #D97706; display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
-    .note-list { list-style: none; padding: 0; margin: 0; font-size: 11px; color: #92400E; line-height: 1.4; }
-    .note-list li { margin-bottom: 4px; display: flex; gap: 4px; }
+    .note-list { list-style: none; padding: 0; margin: 0; font-size: 11px; color: var(--text-muted); line-height: 1.5; font-weight: 500;}
+    .note-list li { margin-bottom: 4px; display: flex; gap: 6px; align-items: flex-start;}
     .note-list li:last-child { margin-bottom: 0; }
+    .note-list li span { color: var(--primary); font-weight: 800; }
     
-    /* Icon Thành công */
+    /* Icon Thành công bừng sáng */
     .success-icon { 
-      width: 60px; height: 60px; background: var(--success); color: #fff; 
+      width: 70px; height: 70px; background: linear-gradient(135deg, var(--success), #059669); color: #fff; 
       border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-      margin: 0 auto 16px; border: 6px solid #D1FAE5; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2); 
+      margin: 0 auto 20px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); 
+      animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+    }
+    @keyframes popIn { 
+      0% { transform: scale(0.5); opacity: 0; } 
+      70% { transform: scale(1.1); } 
+      100% { transform: scale(1); opacity: 1; } 
     }
     
-    .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #E5E7EB; font-size: 13px; }
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #E2E8F0; font-size: 14px; }
     .row:last-child { border-bottom: none; padding-bottom: 0; }
-    .row .label { color: var(--text-muted); font-weight: 500; }
+    .row .label { color: var(--text-muted); font-weight: 600; }
     .row .value { font-weight: 800; color: var(--text-main); text-align: right;}
 
-    /* Hiệu ứng Toast */
+    /* Toast mượt mà */
     .toast { 
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); 
-      background: rgba(17, 24, 39, 0.9); color: #fff; padding: 10px 20px; 
-      border-radius: 30px; font-size: 12px; font-weight: 600; opacity: 0; visibility: hidden; 
-      transition: all 0.3s; z-index: 100; backdrop-filter: blur(4px);
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(30px); 
+      background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); color: #fff; 
+      padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; 
+      opacity: 0; visibility: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+      z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
     }
     .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
-    /* Loading Spinner */
+    /* Spinner Tương lai */
     .spinner { 
-      border: 3px solid #E5EFFF; width: 36px; height: 36px; 
-      border-radius: 50%; border-left-color: var(--primary); 
-      animation: spin 1s linear infinite; margin-bottom: 12px; 
+      width: 44px; height: 44px; border-radius: 50%; 
+      background: conic-gradient(from 0deg at 50% 50%, rgba(37, 99, 235, 0) 0%, var(--primary) 100%);
+      animation: spin 1s linear infinite; margin-bottom: 16px;
+      mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 0);
     }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
+  
+  <!-- Nền Aura -->
+  <div class="bg-aura">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
   <div class="toast" id="toast">Đã sao chép!</div>
 
   <div class="app-container">
@@ -176,32 +215,30 @@
     <!-- MÀN HÌNH LOADING -->
     <div id="screen-loading" class="screen" style="align-items: center;">
       <div class="spinner"></div>
-      <p style="color: var(--text-main); font-size: 14px; font-weight: 700; margin: 0 0 4px 0;">Đang thiết lập thanh toán...</p>
-      <p style="color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 0;">Vui lòng chờ trong giây lát</p>
+      <p style="color: var(--text-main); font-size: 15px; font-weight: 800; margin: 0 0 6px 0;">Đang bảo mật giao dịch...</p>
+      <p style="color: var(--text-muted); font-size: 13px; font-weight: 600; margin: 0;">Vui lòng đợi hệ thống AI xử lý</p>
     </div>
 
     <!-- MÀN HÌNH LỖI -->
     <div id="screen-error" class="screen" style="align-items: center;">
-      <div class="card" style="width: 100%; text-align: center; border-color: #FCA5A5; background: #FEF2F2;">
-        <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
-        <h2 style="margin:0 0 6px; font-size: 18px; color: var(--danger);">Thông báo lỗi</h2>
-        <p id="error-msg" style="color: #991B1B; font-size: 13px; line-height: 1.5; margin: 0;">Liên kết không hợp lệ.</p>
+      <div class="card" style="width: 100%; text-align: center; border-color: rgba(239,68,68,0.3); background: rgba(254,242,242,0.6);">
+        <div style="font-size: 44px; margin-bottom: 12px; animation: popIn 0.5s;">⚠️</div>
+        <h2 style="margin:0 0 8px; font-size: 18px; color: var(--danger);">Không thể kết nối</h2>
+        <p id="error-msg" style="color: #991B1B; font-size: 13px; line-height: 1.5; margin: 0; font-weight: 600;">Mã liên kết không hợp lệ.</p>
       </div>
     </div>
 
-    <!-- BILL THANH TOÁN -->
+    <!-- MÀN HÌNH CHỜ THANH TOÁN -->
     <div id="screen-bill" class="screen">
       <div id="bill-unpaid" style="display: flex; flex-direction: column; width: 100%;">
         
         <div class="card">
-          <!-- LOGO NGÂN HÀNG TRANG TRỌNG TRÊN CÙNG -->
-          <div class="bank-logo-container">
-            <img src="https://cdn.vietqr.io/img/MB.png" alt="MB Bank Logo" crossorigin="anonymous">
-          </div>
-
           <!-- Phân vùng QR -->
           <div class="qr-section">
-            <div class="qr-box"><img id="qr-img" src="" alt="Mã QR" crossorigin="anonymous"></div>
+            <div class="qr-wrapper">
+              <div class="ai-scanner"></div>
+              <img id="qr-img" src="" alt="Mã QR" crossorigin="anonymous">
+            </div>
             <button class="btn-save-qr" onclick="downloadQR()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               Lưu mã QR
@@ -212,65 +249,63 @@
           <div class="info-list">
             <div class="copy-item">
               <div class="copy-info">
+                <span class="copy-lbl">Ngân hàng</span>
+                <span class="copy-val" id="cp-bank">MB Bank</span>
+              </div>
+              <button class="btn-copy-icon" onclick="copyText('cp-bank')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+            </div>
+            <div class="copy-item">
+              <div class="copy-info">
                 <span class="copy-lbl">Số tài khoản</span>
                 <span class="copy-val" id="cp-acc">VQRQAJLBD8864</span>
               </div>
-              <button class="btn-copy-icon" onclick="copyText('cp-acc')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+              <button class="btn-copy-icon" onclick="copyText('cp-acc')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="copy-item">
               <div class="copy-info">
                 <span class="copy-lbl">Chủ tài khoản</span>
                 <span class="copy-val" id="cp-name">DINH VIET TRUONG</span>
               </div>
-              <button class="btn-copy-icon" onclick="copyText('cp-name')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+              <button class="btn-copy-icon" onclick="copyText('cp-name')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="copy-item">
               <div class="copy-info">
                 <span class="copy-lbl">Số tiền thanh toán</span>
                 <span class="copy-val highlight" id="cp-amount">0 VNĐ</span>
               </div>
-              <button class="btn-copy-icon" onclick="copyText('cp-amount')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+              <button class="btn-copy-icon" onclick="copyText('cp-amount')" style="background: var(--primary); color: #fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
             <div class="copy-item" style="margin-bottom: 0;">
               <div class="copy-info">
                 <span class="copy-lbl">Nội dung (Bắt buộc)</span>
                 <span class="copy-val" id="cp-content">---</span>
               </div>
-              <button class="btn-copy-icon" onclick="copyText('cp-content')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+              <button class="btn-copy-icon" onclick="copyText('cp-content')" style="background: var(--primary); color: #fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
           </div>
         </div>
         
         <div class="note-box">
-          <div class="note-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            Lưu ý quan trọng
-          </div>
           <ul class="note-list">
-            <li><span>1</span> Nhập chính xác số tiền và nội dung để hệ thống duyệt tự động.</li>
-            <li><span>2</span> KHÔNG tắt hay tải lại trang này trong lúc chuyển khoản.</li>
+            <li><span>•</span> Hệ thống quét mã và duyệt tự động 24/7.</li>
+            <li><span>•</span> Tuyệt đối không sửa nội dung chuyển khoản.</li>
           </ul>
         </div>
       </div>
 
       <!-- GIAO DIỆN ĐÃ THANH TOÁN THÀNH CÔNG -->
       <div id="bill-paid" style="display: none; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
-        <div class="card" style="padding: 30px 20px;">
-          <!-- Thêm logo đồng bộ ở trang thành công -->
-          <div class="bank-logo-container" style="border:none; padding-bottom: 0; margin-bottom: 16px;">
-            <img src="https://cdn.vietqr.io/img/MB.png" alt="MB Bank Logo">
-          </div>
-
+        <div class="card" style="padding: 32px 20px;">
           <div class="success-icon">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
-          <h2 style="margin: 0 0 20px; color: var(--success); font-size: 20px;">Giao dịch thành công</h2>
+          <h2 style="margin: 0 0 24px; color: var(--success); font-size: 20px; font-weight: 800;">Giao dịch thành công</h2>
           
-          <div style="text-align: left; background: #F9FAFB; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border-color);">
+          <div style="text-align: left; background: rgba(255,255,255,0.8); padding: 0 16px; border-radius: 16px; border: 1px solid #E2E8F0;">
             <div class="row"><span class="label">Mã giao dịch</span><span class="value" id="bl-paid-id" style="font-family: monospace;">---</span></div>
-            <div class="row"><span class="label">Thời gian</span><span class="value" id="bl-paid-time">--:--</span></div>
-            <div class="row" style="margin-bottom: 0; padding-bottom: 0; border: none;">
-              <span class="label">Số tiền nhận</span><span class="value" id="bl-paid-amount" style="color: var(--primary); font-size: 15px;">0 VNĐ</span>
+            <div class="row"><span class="label">Thời gian duyệt</span><span class="value" id="bl-paid-time">--:--</span></div>
+            <div class="row" style="border: none;">
+              <span class="label">Số tiền nhận</span><span class="value" id="bl-paid-amount" style="color: var(--primary); font-size: 16px;">0 VNĐ</span>
             </div>
           </div>
         </div>
@@ -281,7 +316,7 @@
   <script>
     // ==========================================
     // CHỈ SỬ DỤNG APPS SCRIPT API - QUÉT 1.6S/LẦN
-    // GIAO DIỆN GỌN GÀNG - CÓ LOGO MB
+    // GIAO DIỆN HOLOGRAPHIC AI KỊCH KIM 100%
     // ==========================================
     const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbxGNzPtSc-oZjO-yq3GrqaXrvW1nnqJ-6yOGfD-Jv4ZzxorQQfHFGa9LvtOPg2CmHqv2w/exec";
     
@@ -315,7 +350,7 @@
       const nd = urlParams.get('nd'); 
       
       if (!currentId) {
-        showError("Vui lòng quét QR hoặc truy cập từ link hệ thống cung cấp (Thiếu mã ID).");
+        showError("Vui lòng quét QR hoặc truy cập từ link hệ thống cung cấp.");
         return;
       }
 
@@ -423,44 +458,18 @@
         canvas.width = 440;
         canvas.height = 620;
         ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 70, 40, 300, 300);
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#0F172A'; ctx.font = 'bold 24px Arial, sans-serif'; ctx.fillText('THÔNG TIN THANH TOÁN', canvas.width / 2, 380);
+        ctx.fillStyle = '#64748B'; ctx.font = '16px Arial, sans-serif'; ctx.fillText('Mã GD: ' + currentId, canvas.width / 2, 420);
+        ctx.fillStyle = '#2563EB'; ctx.font = 'bold 28px Arial, sans-serif'; ctx.fillText(amount, canvas.width / 2, 470);
+        ctx.fillStyle = '#0F172A'; ctx.font = '16px Arial, sans-serif'; ctx.fillText('Nội dung: ' + content, canvas.width / 2, 510);
+        ctx.fillStyle = '#94A3B8'; ctx.font = 'italic 14px Arial, sans-serif'; ctx.fillText('Sử dụng App Ngân hàng quét mã để thanh toán', canvas.width / 2, 580);
         
-        // Vẽ Logo MB Bank lên ảnh tải về
-        const logoImg = new Image();
-        logoImg.crossOrigin = "Anonymous";
-        logoImg.src = "https://cdn.vietqr.io/img/MB.png";
-        
-        logoImg.onload = function() {
-            // Tỷ lệ logo MB khoảng 3:1, vẽ với chiều cao 30px
-            ctx.drawImage(logoImg, 150, 20, 140, 46); 
-            ctx.drawImage(img, 70, 70, 300, 300);
-            ctx.textAlign = 'center';
-            ctx.fillStyle = '#111827'; ctx.font = 'bold 24px Arial, sans-serif'; ctx.fillText('THÔNG TIN THANH TOÁN', canvas.width / 2, 410);
-            ctx.fillStyle = '#6B7280'; ctx.font = '16px Arial, sans-serif'; ctx.fillText('Mã GD: ' + currentId, canvas.width / 2, 445);
-            ctx.fillStyle = '#0052CC'; ctx.font = 'bold 28px Arial, sans-serif'; ctx.fillText(amount, canvas.width / 2, 495);
-            ctx.fillStyle = '#111827'; ctx.font = '16px Arial, sans-serif'; ctx.fillText('Nội dung: ' + content, canvas.width / 2, 535);
-            ctx.fillStyle = '#9CA3AF'; ctx.font = 'italic 14px Arial, sans-serif'; ctx.fillText('Sử dụng App Ngân hàng quét mã để thanh toán', canvas.width / 2, 595);
-            
-            const link = document.createElement('a');
-            link.download = 'QR_' + currentId + '.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        };
-        
-        // Fallback nếu logo lỗi không tải được
-        logoImg.onerror = function() {
-            ctx.drawImage(img, 70, 40, 300, 300);
-            ctx.textAlign = 'center';
-            ctx.fillStyle = '#111827'; ctx.font = 'bold 24px Arial, sans-serif'; ctx.fillText('THÔNG TIN THANH TOÁN', canvas.width / 2, 380);
-            ctx.fillStyle = '#6B7280'; ctx.font = '16px Arial, sans-serif'; ctx.fillText('Mã GD: ' + currentId, canvas.width / 2, 420);
-            ctx.fillStyle = '#0052CC'; ctx.font = 'bold 28px Arial, sans-serif'; ctx.fillText(amount, canvas.width / 2, 470);
-            ctx.fillStyle = '#111827'; ctx.font = '16px Arial, sans-serif'; ctx.fillText('Nội dung: ' + content, canvas.width / 2, 510);
-            ctx.fillStyle = '#9CA3AF'; ctx.font = 'italic 14px Arial, sans-serif'; ctx.fillText('Sử dụng App Ngân hàng quét mã để thanh toán', canvas.width / 2, 580);
-            
-            const link = document.createElement('a');
-            link.download = 'QR_' + currentId + '.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        }
+        const link = document.createElement('a');
+        link.download = 'QR_' + currentId + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
       };
       img.onerror = function() { showToast("Lỗi tải ảnh QR, vui lòng thử lại!"); }
       img.src = qrUrl;
