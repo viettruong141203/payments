@@ -168,6 +168,15 @@
       margin: 0 auto 20px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); 
       animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
     }
+    
+    /* Icon Thất bại */
+    .failed-icon { 
+      width: 70px; height: 70px; background: linear-gradient(135deg, var(--danger), #B91C1C); color: #fff; 
+      border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+      margin: 0 auto 20px; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4); 
+      animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+    }
+
     @keyframes popIn { 
       0% { transform: scale(0.5); opacity: 0; } 
       70% { transform: scale(1.1); } 
@@ -219,7 +228,7 @@
       <p style="color: var(--text-muted); font-size: 13px; font-weight: 600; margin: 0;">Vui lòng đợi hệ thống AI xử lý</p>
     </div>
 
-    <!-- MÀN HÌNH LỖI -->
+    <!-- MÀN HÌNH LỖI (Mã ID không hợp lệ) -->
     <div id="screen-error" class="screen" style="align-items: center;">
       <div class="card" style="width: 100%; text-align: center; border-color: rgba(239,68,68,0.3); background: rgba(254,242,242,0.6);">
         <div style="font-size: 44px; margin-bottom: 12px; animation: popIn 0.5s;">⚠️</div>
@@ -228,10 +237,11 @@
       </div>
     </div>
 
-    <!-- MÀN HÌNH CHỜ THANH TOÁN -->
+    <!-- LUỒNG THANH TOÁN CHÍNH -->
     <div id="screen-bill" class="screen">
+      
+      <!-- 1. GIAO DIỆN CHỜ THANH TOÁN (QR) -->
       <div id="bill-unpaid" style="display: flex; flex-direction: column; width: 100%;">
-        
         <div class="card">
           <!-- Phân vùng QR -->
           <div class="qr-section">
@@ -293,7 +303,7 @@
         </div>
       </div>
 
-      <!-- GIAO DIỆN ĐÃ THANH TOÁN THÀNH CÔNG -->
+      <!-- 2. GIAO DIỆN ĐÃ THANH TOÁN THÀNH CÔNG -->
       <div id="bill-paid" style="display: none; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
         <div class="card" style="padding: 32px 20px;">
           <div class="success-icon">
@@ -310,13 +320,32 @@
           </div>
         </div>
       </div>
+
+      <!-- 3. GIAO DIỆN GIAO DỊCH THẤT BẠI / ĐÃ HỦY -->
+      <div id="bill-failed" style="display: none; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
+        <div class="card" style="padding: 32px 20px; border-color: rgba(239,68,68,0.3); background: rgba(254,242,242,0.6);">
+          <div class="failed-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </div>
+          <h2 style="margin: 0 0 24px; color: var(--danger); font-size: 20px; font-weight: 800;">Giao dịch thất bại</h2>
+          
+          <div style="text-align: left; background: rgba(255,255,255,0.9); padding: 0 16px; border-radius: 16px; border: 1px solid #FCA5A5;">
+            <div class="row"><span class="label">Mã giao dịch</span><span class="value" id="bl-failed-id" style="font-family: monospace;">---</span></div>
+            <div class="row"><span class="label">Trạng thái</span><span class="value" id="bl-failed-status" style="color: var(--danger); text-transform: capitalize;">Đã hủy</span></div>
+            <div class="row" style="border: none;">
+              <span class="label">Số tiền</span><span class="value" id="bl-failed-amount" style="font-size: 16px;">0 VNĐ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <script>
     // ==========================================
     // CHỈ SỬ DỤNG APPS SCRIPT API - QUÉT 1.6S/LẦN
-    // GIAO DIỆN HOLOGRAPHIC AI KỊCH KIM 100%
+    // TỰ ĐỘNG CHUYỂN TRẠNG THÁI (CHỜ -> THÀNH CÔNG / THẤT BẠI)
     // ==========================================
     const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbxGNzPtSc-oZjO-yq3GrqaXrvW1nnqJ-6yOGfD-Jv4ZzxorQQfHFGa9LvtOPg2CmHqv2w/exec";
     
@@ -354,13 +383,13 @@
         return;
       }
 
-      // NẾU LINK CÓ SẴN SỐ TIỀN & NỘI DUNG -> 0 GIÂY VÀO THẲNG BILL
+      // TẢI UI TỨC THÌ NẾU CÓ ĐỦ DỮ LIỆU
       if (am && nd) {
           renderData({ id: currentId, amount: am, content: nd, status: "chờ thanh toán" });
           switchScreen('bill');
           startPolling();
       } else {
-          // HIỆN MÀN HÌNH LOADING KHI THIẾU PARAM
+          // BẬT LOADING KHI THIẾU PARAM
           switchScreen('loading');
           fetchFirstData();
       }
@@ -380,7 +409,9 @@
             switchScreen('bill');
             
             const statusStr = result.data.status ? String(result.data.status).trim().toLowerCase() : '';
-            if (!(statusStr.includes('đã thanh toán') || statusStr.includes('thành công'))) {
+            const isFinished = (statusStr.includes('đã thanh toán') || statusStr.includes('thành công') || statusStr.includes('thất bại') || statusStr.includes('hủy') || statusStr.includes('lỗi') || statusStr.includes('quá hạn'));
+            
+            if (!isFinished) {
                 startPolling();
             }
           } else {
@@ -393,28 +424,43 @@
     }
 
     function renderData(data) {
-      var statusStr = data.status || '';
+      var statusStr = data.status ? String(data.status).trim().toLowerCase() : '';
+      
+      // KIỂM TRA TRẠNG THÁI
       var isPaid = (statusStr.includes('đã thanh toán') || statusStr.includes('thành công'));
+      var isFailed = (statusStr.includes('thất bại') || statusStr.includes('hủy') || statusStr.includes('lỗi') || statusStr.includes('quá hạn'));
 
       let rawAmount = String(data.amount).replace(/[^0-9]/g, '');
       let displayAmount = rawAmount && rawAmount !== "0" ? rawAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VNĐ" : "0 VNĐ";
 
-      // Nạp thẻ Chưa thanh toán
+      // ĐIỀN THÔNG TIN CHỜ THANH TOÁN
       document.getElementById('cp-amount').innerText = displayAmount;
       document.getElementById('cp-content').innerText = data.content;
       document.getElementById('qr-img').src = 'https://img.vietqr.io/image/' + BANK_ID + '-' + ACCOUNT_NO + '-qr_only.png?amount=' + rawAmount + '&addInfo=' + encodeURIComponent(data.content || '') + '&accountName=' + encodeURIComponent(ACCOUNT_NAME);
       
-      // Nạp thẻ Đã thanh toán
+      // ĐIỀN THÔNG TIN ĐÃ THANH TOÁN (THÀNH CÔNG)
       document.getElementById('bl-paid-id').innerText = data.id;
       document.getElementById('bl-paid-time').innerText = data.paymentTime || '--:--';
       document.getElementById('bl-paid-amount').innerText = displayAmount;
 
+      // ĐIỀN THÔNG TIN THẤT BẠI
+      document.getElementById('bl-failed-id').innerText = data.id;
+      document.getElementById('bl-failed-status').innerText = data.status || 'Đã hủy';
+      document.getElementById('bl-failed-amount').innerText = displayAmount;
+
+      // ĐIỀU HƯỚNG HIỂN THỊ CÁC THẺ
       if (isPaid) {
         document.getElementById('bill-unpaid').style.display = 'none';
         document.getElementById('bill-paid').style.display = 'flex';
+        document.getElementById('bill-failed').style.display = 'none';
+      } else if (isFailed) {
+        document.getElementById('bill-unpaid').style.display = 'none';
+        document.getElementById('bill-paid').style.display = 'none';
+        document.getElementById('bill-failed').style.display = 'flex';
       } else {
         document.getElementById('bill-unpaid').style.display = 'flex';
         document.getElementById('bill-paid').style.display = 'none';
+        document.getElementById('bill-failed').style.display = 'none';
       }
     }
 
@@ -428,11 +474,15 @@
             .then(result => {
               if (result.success && result.data) {
                   const statusStr = result.data.status ? String(result.data.status).trim().toLowerCase() : '';
-                  if (statusStr.includes('đã thanh toán') || statusStr.includes('thành công')) {
+                  const isPaid = (statusStr.includes('đã thanh toán') || statusStr.includes('thành công'));
+                  const isFailed = (statusStr.includes('thất bại') || statusStr.includes('hủy') || statusStr.includes('lỗi') || statusStr.includes('quá hạn'));
+                  
+                  if (isPaid || isFailed) {
                       clearInterval(pollingInterval);
                       pollingInterval = null;
                       renderData(result.data);
-                      showToast("Thanh toán thành công!");
+                      if (isPaid) showToast("Thanh toán thành công!");
+                      if (isFailed) showToast("Giao dịch đã đóng!");
                   }
               }
             })
