@@ -11,7 +11,7 @@
   
   <style>
     :root {
-      --primary: #0052CC; /* Xanh MB Bank chuẩn */
+      --primary: #0052CC; 
       --primary-light: #E5EFFF;
       --success: #10B981;
       --danger: #EF4444;
@@ -26,7 +26,7 @@
     
     html, body { 
       width: 100%; height: 100%; margin: 0; padding: 0; 
-      overflow: hidden; /* Cố định khung hình, không cho cuộn trang */
+      overflow: hidden; 
       overscroll-behavior: none; 
     }
 
@@ -64,11 +64,21 @@
       border: 1px solid rgba(255,255,255,0.8);
       display: flex; flex-direction: column; gap: 8px;
     }
+
+    /* VÙNG LOGO NGÂN HÀNG */
+    .bank-logo-container {
+      display: flex; justify-content: center; align-items: center;
+      padding-bottom: 10px; margin-bottom: 4px;
+      border-bottom: 1px dashed #E5E7EB;
+    }
+    .bank-logo-container img {
+      height: 28px; width: auto; object-fit: contain;
+    }
     
     /* Vùng chứa QR */
     .qr-section {
       display: flex; flex-direction: column; align-items: center; 
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
     
     .qr-box { 
@@ -78,9 +88,8 @@
       margin-bottom: 10px;
     }
     
-    /* Kích thước QR linh động theo chiều cao màn hình để không bị lẹm */
     .qr-box img { 
-      width: auto; height: clamp(130px, 26vh, 180px); aspect-ratio: 1/1; 
+      width: auto; height: clamp(120px, 24vh, 170px); aspect-ratio: 1/1; 
       border-radius: 8px; display: block; 
     }
     
@@ -122,7 +131,7 @@
     /* Ghi chú gọn gàng */
     .note-box { 
       background: #FFFBEB; border: 1px dashed #FCD34D; 
-      border-radius: 12px; padding: 10px 12px; margin-top: 8px; 
+      border-radius: 12px; padding: 10px 12px; margin-top: 6px; 
     }
     .note-title { font-size: 12px; font-weight: 800; color: #D97706; display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
     .note-list { list-style: none; padding: 0; margin: 0; font-size: 11px; color: #92400E; line-height: 1.4; }
@@ -180,11 +189,16 @@
       </div>
     </div>
 
-    <!-- MÀN HÌNH CHỜ THANH TOÁN -->
+    <!-- BILL THANH TOÁN -->
     <div id="screen-bill" class="screen">
       <div id="bill-unpaid" style="display: flex; flex-direction: column; width: 100%;">
         
         <div class="card">
+          <!-- LOGO NGÂN HÀNG TRANG TRỌNG TRÊN CÙNG -->
+          <div class="bank-logo-container">
+            <img src="https://cdn.vietqr.io/img/MB.png" alt="MB Bank Logo" crossorigin="anonymous">
+          </div>
+
           <!-- Phân vùng QR -->
           <div class="qr-section">
             <div class="qr-box"><img id="qr-img" src="" alt="Mã QR" crossorigin="anonymous"></div>
@@ -196,13 +210,6 @@
           
           <!-- Phân vùng thông tin -->
           <div class="info-list">
-            <div class="copy-item">
-              <div class="copy-info">
-                <span class="copy-lbl">Ngân hàng</span>
-                <span class="copy-val" id="cp-bank">MB Bank</span>
-              </div>
-              <button class="btn-copy-icon" onclick="copyText('cp-bank')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
-            </div>
             <div class="copy-item">
               <div class="copy-info">
                 <span class="copy-lbl">Số tài khoản</span>
@@ -224,7 +231,7 @@
               </div>
               <button class="btn-copy-icon" onclick="copyText('cp-amount')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
-            <div class="copy-item">
+            <div class="copy-item" style="margin-bottom: 0;">
               <div class="copy-info">
                 <span class="copy-lbl">Nội dung (Bắt buộc)</span>
                 <span class="copy-val" id="cp-content">---</span>
@@ -249,6 +256,11 @@
       <!-- GIAO DIỆN ĐÃ THANH TOÁN THÀNH CÔNG -->
       <div id="bill-paid" style="display: none; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
         <div class="card" style="padding: 30px 20px;">
+          <!-- Thêm logo đồng bộ ở trang thành công -->
+          <div class="bank-logo-container" style="border:none; padding-bottom: 0; margin-bottom: 16px;">
+            <img src="https://cdn.vietqr.io/img/MB.png" alt="MB Bank Logo">
+          </div>
+
           <div class="success-icon">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
@@ -269,7 +281,7 @@
   <script>
     // ==========================================
     // CHỈ SỬ DỤNG APPS SCRIPT API - QUÉT 1.6S/LẦN
-    // GIAO DIỆN GỌN GÀNG - NO SCROLL
+    // GIAO DIỆN GỌN GÀNG - CÓ LOGO MB
     // ==========================================
     const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbxGNzPtSc-oZjO-yq3GrqaXrvW1nnqJ-6yOGfD-Jv4ZzxorQQfHFGa9LvtOPg2CmHqv2w/exec";
     
@@ -411,18 +423,44 @@
         canvas.width = 440;
         canvas.height = 620;
         ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 70, 40, 300, 300);
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#111827'; ctx.font = 'bold 24px Arial, sans-serif'; ctx.fillText('THÔNG TIN THANH TOÁN', canvas.width / 2, 380);
-        ctx.fillStyle = '#6B7280'; ctx.font = '16px Arial, sans-serif'; ctx.fillText('Mã GD: ' + currentId, canvas.width / 2, 420);
-        ctx.fillStyle = '#0052CC'; ctx.font = 'bold 28px Arial, sans-serif'; ctx.fillText(amount, canvas.width / 2, 470);
-        ctx.fillStyle = '#111827'; ctx.font = '16px Arial, sans-serif'; ctx.fillText('Nội dung: ' + content, canvas.width / 2, 510);
-        ctx.fillStyle = '#9CA3AF'; ctx.font = 'italic 14px Arial, sans-serif'; ctx.fillText('Sử dụng App Ngân hàng quét mã để thanh toán', canvas.width / 2, 580);
         
-        const link = document.createElement('a');
-        link.download = 'QR_' + currentId + '.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        // Vẽ Logo MB Bank lên ảnh tải về
+        const logoImg = new Image();
+        logoImg.crossOrigin = "Anonymous";
+        logoImg.src = "https://cdn.vietqr.io/img/MB.png";
+        
+        logoImg.onload = function() {
+            // Tỷ lệ logo MB khoảng 3:1, vẽ với chiều cao 30px
+            ctx.drawImage(logoImg, 150, 20, 140, 46); 
+            ctx.drawImage(img, 70, 70, 300, 300);
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#111827'; ctx.font = 'bold 24px Arial, sans-serif'; ctx.fillText('THÔNG TIN THANH TOÁN', canvas.width / 2, 410);
+            ctx.fillStyle = '#6B7280'; ctx.font = '16px Arial, sans-serif'; ctx.fillText('Mã GD: ' + currentId, canvas.width / 2, 445);
+            ctx.fillStyle = '#0052CC'; ctx.font = 'bold 28px Arial, sans-serif'; ctx.fillText(amount, canvas.width / 2, 495);
+            ctx.fillStyle = '#111827'; ctx.font = '16px Arial, sans-serif'; ctx.fillText('Nội dung: ' + content, canvas.width / 2, 535);
+            ctx.fillStyle = '#9CA3AF'; ctx.font = 'italic 14px Arial, sans-serif'; ctx.fillText('Sử dụng App Ngân hàng quét mã để thanh toán', canvas.width / 2, 595);
+            
+            const link = document.createElement('a');
+            link.download = 'QR_' + currentId + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        };
+        
+        // Fallback nếu logo lỗi không tải được
+        logoImg.onerror = function() {
+            ctx.drawImage(img, 70, 40, 300, 300);
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#111827'; ctx.font = 'bold 24px Arial, sans-serif'; ctx.fillText('THÔNG TIN THANH TOÁN', canvas.width / 2, 380);
+            ctx.fillStyle = '#6B7280'; ctx.font = '16px Arial, sans-serif'; ctx.fillText('Mã GD: ' + currentId, canvas.width / 2, 420);
+            ctx.fillStyle = '#0052CC'; ctx.font = 'bold 28px Arial, sans-serif'; ctx.fillText(amount, canvas.width / 2, 470);
+            ctx.fillStyle = '#111827'; ctx.font = '16px Arial, sans-serif'; ctx.fillText('Nội dung: ' + content, canvas.width / 2, 510);
+            ctx.fillStyle = '#9CA3AF'; ctx.font = 'italic 14px Arial, sans-serif'; ctx.fillText('Sử dụng App Ngân hàng quét mã để thanh toán', canvas.width / 2, 580);
+            
+            const link = document.createElement('a');
+            link.download = 'QR_' + currentId + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
       };
       img.onerror = function() { showToast("Lỗi tải ảnh QR, vui lòng thử lại!"); }
       img.src = qrUrl;
