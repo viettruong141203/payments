@@ -58,12 +58,11 @@
     .app-container { 
       width: 100%; max-width: 400px; height: 100%; max-height: 100dvh;
       display: flex; flex-direction: column; position: relative; z-index: 1;
-      overflow-y: auto; overflow-x: hidden; 
     }
     
     .screen { 
       display: none; flex-direction: column; flex-grow: 1; 
-      padding: clamp(12px, 3vh, 24px); 
+      padding: clamp(12px, 4vh, 24px); 
       justify-content: center;
       animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
     }
@@ -82,13 +81,13 @@
       padding: clamp(16px, 3.5vh, 20px); 
       box-shadow: 0 24px 40px -10px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.8); 
       border: 1px solid var(--glass-border);
-      display: flex; flex-direction: column; gap: clamp(8px, 1.5vh, 12px);
+      display: flex; flex-direction: column; gap: 10px;
     }
     
     /* Vùng chứa QR và AI Scanner */
     .qr-section {
       display: flex; flex-direction: column; align-items: center; 
-      margin-bottom: 2px; position: relative;
+      margin-bottom: 6px; position: relative;
     }
     
     .qr-wrapper {
@@ -113,7 +112,7 @@
     }
 
     .qr-wrapper img { 
-      width: auto; height: clamp(140px, 24vh, 190px); aspect-ratio: 1/1; 
+      width: auto; height: clamp(140px, 26vh, 190px); aspect-ratio: 1/1; 
       border-radius: 12px; display: block; position: relative; z-index: 1;
     }
     
@@ -133,7 +132,7 @@
     
     .copy-item { 
       display: flex; justify-content: space-between; align-items: center; 
-      padding: clamp(8px, 1.5vh, 12px) 14px; background: var(--item-bg); 
+      padding: 10px 14px; background: var(--item-bg); 
       border: 1px solid #FFFFFF; border-radius: 16px; 
       box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: all 0.2s;
     }
@@ -155,30 +154,26 @@
     /* Box ghi chú kiểu Minimalist */
     .note-box { 
       background: rgba(255, 255, 255, 0.4); border: 1px solid rgba(255,255,255,0.6); 
-      border-radius: 16px; padding: 12px 14px; margin-top: 4px; 
+      border-radius: 16px; padding: 12px 14px; margin-top: 6px; 
     }
     .note-list { list-style: none; padding: 0; margin: 0; font-size: 11px; color: var(--text-muted); line-height: 1.5; font-weight: 500;}
     .note-list li { margin-bottom: 4px; display: flex; gap: 6px; align-items: flex-start;}
     .note-list li:last-child { margin-bottom: 0; }
     .note-list li span { color: var(--primary); font-weight: 800; }
     
-    /* Icon Trạng Thái */
-    .status-icon { 
-      width: clamp(60px, 8vh, 76px); height: clamp(60px, 8vh, 76px); 
-      border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-      margin: 0 auto 16px; color: #fff;
-    }
-    .status-icon svg { width: 50%; height: 50%; }
-    
+    /* Icon Thành công bừng sáng */
     .success-icon { 
-      background: linear-gradient(135deg, var(--success), #059669); 
-      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); 
+      width: 70px; height: 70px; background: linear-gradient(135deg, var(--success), #059669); color: #fff; 
+      border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+      margin: 0 auto 20px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); 
       animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
     }
     
+    /* Icon Thất bại */
     .failed-icon { 
-      background: linear-gradient(135deg, var(--danger), #B91C1C); 
-      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4); 
+      width: 70px; height: 70px; background: linear-gradient(135deg, var(--danger), #B91C1C); color: #fff; 
+      border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+      margin: 0 auto 20px; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4); 
       animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
     }
 
@@ -188,23 +183,8 @@
       100% { transform: scale(1); opacity: 1; } 
     }
     
-    /* Box kết quả */
-    .result-box {
-      text-align: left; background: rgba(255,255,255,0.85); 
-      padding: 6px 18px; border-radius: 20px; border: 1px solid #E2E8F0;
-      box-shadow: inset 0 2px 10px rgba(0,0,0,0.01);
-    }
-    .result-box.failed-box {
-      background: rgba(254,242,242,0.8); border-color: #FCA5A5;
-    }
-
-    .row { 
-      display: flex; justify-content: space-between; align-items: center; 
-      padding: clamp(12px, 2vh, 16px) 0; border-bottom: 1px dashed #CBD5E1; font-size: 14px; 
-    }
-    .row:last-child { border-bottom: none; }
-    .failed-box .row { border-bottom-color: #FECACA; }
-    
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #E2E8F0; font-size: 14px; }
+    .row:last-child { border-bottom: none; padding-bottom: 0; }
     .row .label { color: var(--text-muted); font-weight: 600; }
     .row .value { font-weight: 800; color: var(--text-main); text-align: right;}
 
@@ -257,6 +237,7 @@
 </head>
 <body>
   
+  <!-- Nền Aura -->
   <div class="bg-aura">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
@@ -294,6 +275,7 @@
       <!-- 1. GIAO DIỆN CHỜ THANH TOÁN (QR) -->
       <div id="bill-unpaid" style="display: flex; flex-direction: column; width: 100%;">
         <div class="card">
+          <!-- Phân vùng QR -->
           <div class="qr-section">
             <div class="qr-wrapper">
               <div class="ai-scanner"></div>
@@ -305,6 +287,7 @@
             </button>
           </div>
           
+          <!-- Phân vùng thông tin -->
           <div class="info-list">
             <div class="copy-item">
               <div class="copy-info">
@@ -336,7 +319,7 @@
             </div>
             <div class="copy-item" style="margin-bottom: 0;">
               <div class="copy-info">
-                <span class="copy-lbl">Nội dung (bắt buộc)</span>
+                <span class="copy-lbl">Nội dung (Bắt buộc)</span>
                 <span class="copy-val" id="cp-content">---</span>
               </div>
               <button class="btn-copy-icon" onclick="copyText('cp-content')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
@@ -354,13 +337,13 @@
 
       <!-- 2. GIAO DIỆN ĐÃ THANH TOÁN THÀNH CÔNG -->
       <div id="bill-paid" style="display: none; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
-        <div class="card" style="padding: clamp(24px, 4vh, 32px) clamp(16px, 4vw, 24px);">
-          <div class="status-icon success-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <div class="card" style="padding: 32px 20px;">
+          <div class="success-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
-          <h2 style="margin: 0 0 20px; color: var(--success); font-size: clamp(18px, 4vw, 22px); font-weight: 800;">Giao dịch thành công</h2>
+          <h2 style="margin: 0 0 24px; color: var(--success); font-size: 20px; font-weight: 800;">Giao dịch thành công</h2>
           
-          <div class="result-box">
+          <div style="text-align: left; background: rgba(255,255,255,0.8); padding: 0 16px; border-radius: 16px; border: 1px solid #E2E8F0;">
             <div class="row">
               <span class="label">Mã giao dịch</span>
               <span class="value" id="bl-paid-id" style="font-family: monospace;">---</span>
@@ -373,9 +356,9 @@
               <span class="label">Số tiền</span>
               <span class="value" id="bl-paid-amount" style="font-size: 16px;">0 VNĐ</span>
             </div>
-            <div class="row">
+            <div class="row" style="border: none;">
               <span class="label">Trạng thái</span>
-              <span class="value" id="bl-paid-status" style="color: var(--success); text-transform: capitalize;">Thành công</span>
+              <span class="value" id="bl-paid-status" style="color: var(--success);">---</span>
             </div>
           </div>
         </div>
@@ -383,13 +366,13 @@
 
       <!-- 3. GIAO DIỆN GIAO DỊCH THẤT BẠI / ĐÃ HỦY -->
       <div id="bill-failed" style="display: none; flex-direction: column; justify-content: center; height: 100%; text-align: center;">
-        <div class="card" style="padding: clamp(24px, 4vh, 32px) clamp(16px, 4vw, 24px); border-color: rgba(239,68,68,0.3); background: rgba(254,242,242,0.6);">
-          <div class="status-icon failed-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <div class="card" style="padding: 32px 20px; border-color: rgba(239,68,68,0.3); background: rgba(254,242,242,0.6);">
+          <div class="failed-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </div>
-          <h2 style="margin: 0 0 20px; color: var(--danger); font-size: clamp(18px, 4vw, 22px); font-weight: 800;">Giao dịch thất bại</h2>
+          <h2 style="margin: 0 0 24px; color: var(--danger); font-size: 20px; font-weight: 800;">Giao dịch thất bại</h2>
           
-          <div class="result-box failed-box">
+          <div style="text-align: left; background: rgba(255,255,255,0.9); padding: 0 16px; border-radius: 16px; border: 1px solid #FCA5A5;">
             <div class="row">
               <span class="label">Mã giao dịch</span>
               <span class="value" id="bl-failed-id" style="font-family: monospace;">---</span>
@@ -402,9 +385,9 @@
               <span class="label">Số tiền</span>
               <span class="value" id="bl-failed-amount" style="font-size: 16px;">0 VNĐ</span>
             </div>
-            <div class="row">
+            <div class="row" style="border: none;">
               <span class="label">Trạng thái</span>
-              <span class="value" id="bl-failed-status" style="color: var(--danger); text-transform: capitalize;">Đã hủy</span>
+              <span class="value" id="bl-failed-status" style="color: var(--danger);">---</span>
             </div>
           </div>
         </div>
@@ -415,28 +398,32 @@
 
   <script>
     // ==============================================================
-    // 🔧 CẤU HÌNH NGÂN HÀNG (SỬA Ở ĐÂY CHO TỪNG FILE)
+    // 🔧 CẤU HÌNH NGÂN HÀNG VÀ HỆ THỐNG
     // ==============================================================
     const BANK_ID = 'mb';                      // VD: vcb, timo, cake...
     const BANK_NAME = 'MB Bank';               // Tên hiển thị
     const ACCOUNT_NO = 'VQRQAJLBD8864';        // Số tài khoản của bạn
     const ACCOUNT_NAME = 'DINH VIET TRUONG';   // Tên chủ tài khoản
     
-    // API CŨ: Quản lý Giao dịch (Lấy thông tin bill + Trạng thái hủy từ Sheet)
+    // API 1: Google Sheet (Nơi quản lý đơn hàng)
     const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbxGNzPtSc-oZjO-yq3GrqaXrvW1nnqJ-6yOGfD-Jv4ZzxorQQfHFGa9LvtOPg2CmHqv2w/exec";
     
-    // API MỚI: Check Lịch sử Ngân Hàng Siêu Tốc
-    const BANK_CHECK_API_URL = "https://script.google.com/macros/s/AKfycbyTwyaKpLIydE7u0sosrDOPVCj2VG0xCq1r2Hwda8U6sQ7s7AXNAEIjwNiBnr2zVrJ2/exec";
+    // API 2: Lịch sử giao dịch Ngân Hàng trực tiếp (Để duyệt siêu tốc)
+    const BANK_FEED_API = "https://script.google.com/macros/s/AKfycbyTwyaKpLIydE7u0sosrDOPVCj2VG0xCq1r2Hwda8U6sQ7s7AXNAEIjwNiBnr2zVrJ2/exec";
     // ==============================================================
 
     let currentId = "";
     let urlParams;
     let pollingInterval;
+    
+    // Lưu trữ thông tin hiện tại để đối chiếu với Bank Feed
+    let currentTxData = {};
 
     function switchScreen(screenName) {
       document.getElementById('screen-loading').classList.remove('active');
       document.getElementById('screen-error').classList.remove('active');
       document.getElementById('screen-bill').classList.remove('active');
+      
       const targetScreen = document.getElementById('screen-' + screenName);
       if (targetScreen) targetScreen.classList.add('active');
     }
@@ -448,6 +435,7 @@
     }
 
     window.onload = function() {
+      // 1. Nạp Cấu hình
       document.getElementById('cp-bank').innerText = BANK_NAME;
       document.getElementById('cp-acc').innerText = ACCOUNT_NO;
       document.getElementById('cp-name').innerText = ACCOUNT_NAME;
@@ -462,11 +450,20 @@
         return;
       }
 
+      currentTxData = {
+          id: currentId,
+          amount: am || "0",
+          content: nd || "---",
+          status: "Chờ thanh toán"
+      };
+
+      // TẢI UI TỨC THÌ NẾU CÓ ĐỦ DỮ LIỆU
       if (am && nd) {
-          renderData({ id: currentId, amount: am, content: nd, status: "chờ thanh toán" });
+          renderData(currentTxData);
           switchScreen('bill');
           startPolling();
       } else {
+          // BẬT LOADING KHI THIẾU THÔNG SỐ (PHẢI CHỜ GỌI API GOOGLE SHEET)
           switchScreen('loading');
           fetchFirstData();
       }
@@ -477,15 +474,15 @@
         .then(res => res.json())
         .then(result => {
           if (result.success && result.data) {
-            const am = urlParams.get('am'); 
-            const nd = urlParams.get('nd');
-            if (am && (!result.data.amount || result.data.amount === "0" || result.data.amount === "")) result.data.amount = am;
-            if (nd && (!result.data.content || result.data.content === "---" || result.data.content === "")) result.data.content = nd;
-
-            renderData(result.data);
+            // Lấp đầy dữ liệu nếu thiếu
+            if (!result.data.amount || result.data.amount === "0" || result.data.amount === "") result.data.amount = currentTxData.amount;
+            if (!result.data.content || result.data.content === "---" || result.data.content === "") result.data.content = currentTxData.content;
+            
+            currentTxData = result.data;
+            renderData(currentTxData);
             switchScreen('bill');
             
-            const statusStr = result.data.status ? String(result.data.status).trim().toLowerCase() : '';
+            const statusStr = currentTxData.status ? String(currentTxData.status).trim().toLowerCase() : '';
             const isFinished = (statusStr.includes('đã thanh toán') || statusStr.includes('thành công') || statusStr.includes('thất bại') || statusStr.includes('hủy') || statusStr.includes('lỗi') || statusStr.includes('quá hạn'));
             
             if (!isFinished) {
@@ -501,7 +498,8 @@
     }
 
     function renderData(data) {
-      var statusStr = data.status ? String(data.status).trim().toLowerCase() : '';
+      var rawStatus = data.status ? String(data.status).trim() : '';
+      var statusStr = rawStatus.toLowerCase();
       
       var isPaid = (statusStr.includes('đã thanh toán') || statusStr.includes('thành công'));
       var isFailed = (statusStr.includes('thất bại') || statusStr.includes('hủy') || statusStr.includes('lỗi') || statusStr.includes('quá hạn'));
@@ -509,23 +507,26 @@
       let rawAmount = String(data.amount).replace(/[^0-9]/g, '');
       let displayAmount = rawAmount && rawAmount !== "0" ? rawAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VNĐ" : "0 VNĐ";
 
-      // Khối Chờ Thanh Toán
+      // 1. Cập nhật khối Chờ Thanh Toán
       document.getElementById('cp-amount').innerText = displayAmount;
       document.getElementById('cp-content').innerText = data.content;
       document.getElementById('qr-img').src = 'https://img.vietqr.io/image/' + BANK_ID + '-' + ACCOUNT_NO + '-qr_only.png?amount=' + rawAmount + '&addInfo=' + encodeURIComponent(data.content || '') + '&accountName=' + encodeURIComponent(ACCOUNT_NAME);
       
-      // Khối Đã Thanh Toán (Thành công)
-      document.getElementById('bl-paid-id').innerText = data.id || currentId;
+      // 2. Cập nhật khối Đã Thanh Toán (Thành công)
+      document.getElementById('bl-paid-id').innerText = data.id;
       document.getElementById('bl-paid-time').innerText = data.paymentTime || '--:--';
       document.getElementById('bl-paid-amount').innerText = displayAmount;
-      document.getElementById('bl-paid-status').innerText = 'Thành công';
+      // In chính xác Trạng thái lấy từ Sheet
+      document.getElementById('bl-paid-status').innerText = rawStatus || 'Đã thanh toán';
 
-      // Khối Thất Bại
-      document.getElementById('bl-failed-id').innerText = data.id || currentId;
+      // 3. Cập nhật khối Thất Bại / Đã Hủy
+      document.getElementById('bl-failed-id').innerText = data.id;
       document.getElementById('bl-failed-time').innerText = data.paymentTime || '--:--';
       document.getElementById('bl-failed-amount').innerText = displayAmount;
-      document.getElementById('bl-failed-status').innerText = data.status || 'Đã hủy';
+      // In chính xác Trạng thái lấy từ Sheet
+      document.getElementById('bl-failed-status').innerText = rawStatus || 'Đã hủy';
 
+      // Điều hướng hiển thị màn hình
       if (isPaid) {
         document.getElementById('bill-unpaid').style.display = 'none';
         document.getElementById('bill-paid').style.display = 'flex';
@@ -541,82 +542,67 @@
       }
     }
 
-    // =========================================================
-    // CƠ CHẾ QUÉT KÉP (DUAL POLLING) - 1.6 GIÂY/LẦN
-    // =========================================================
+    // ==========================================================
+    // QUÉT KÉP 1.6 GIÂY (DATA RACE)
+    // Luồng 1: Tìm giao dịch trực tiếp từ API Ngân Hàng mới
+    // Luồng 2: Cập nhật lỗi/hủy từ Google Sheet
+    // ==========================================================
     function startPolling() {
       if(pollingInterval) clearInterval(pollingInterval);
       
       const checkData = function() {
-          // 1. Kiểm tra Lịch sử Ngân Hàng trực tiếp (Instant check)
-          fetch(BANK_CHECK_API_URL + "?t=" + new Date().getTime(), { cache: 'no-store' })
+          // THUẬT TOÁN 1: QUÉT TRỰC TIẾP LỊCH SỬ NGÂN HÀNG (Bảo đảm Tốc độ)
+          fetch(BANK_FEED_API + "?t=" + new Date().getTime(), { cache: 'no-store' })
             .then(res => res.json())
             .then(result => {
-                let transactions = [];
-                if (Array.isArray(result)) transactions = result;
-                else if (result.data && Array.isArray(result.data)) transactions = result.data;
-                else if (typeof result === 'object') transactions = [result];
+                let txs = Array.isArray(result) ? result : (result.data || [result]);
+                let expAm = String(currentTxData.amount).replace(/[^0-9]/g, '');
+                let expCt = String(currentTxData.content).trim().toLowerCase();
+                
+                if (!expAm || !expCt || expCt === "---") return; 
 
-                const expectedAm = String(document.getElementById('cp-amount').innerText).replace(/[^0-9]/g, '');
-                const expectedNd = String(document.getElementById('cp-content').innerText).toLowerCase().trim();
-                const expectedId = currentId.toLowerCase().trim();
+                // Lọc tìm giao dịch có đúng Số tiền và Nội dung
+                let matchedTx = txs.find(tx => {
+                    if (!tx["Số tiền"] || !tx["Nội dung"]) return false;
+                    let txAm = String(tx["Số tiền"]).replace(/[^0-9]/g, '');
+                    let txCt = String(tx["Nội dung"]).toLowerCase();
+                    return (txAm === expAm && txCt.includes(expCt));
+                });
 
-                let isPaidDirectly = false;
-                let paidTime = "--:--";
-
-                for (let tx of transactions) {
-                    let txAm = String(tx["Số tiền"] || "").replace(/[^0-9]/g, '');
-                    let txNd = String(tx["Nội dung"] || "").toLowerCase();
-                    let txTime = String(tx["Thời gian"] || "");
-
-                    // So sánh: đúng tiền VÀ (nội dung chứa ID hoặc tham số ND)
-                    let matchContent = (expectedNd && expectedNd !== "---" && txNd.includes(expectedNd)) || (expectedId && txNd.includes(expectedId));
-
-                    if (matchContent && txAm === expectedAm && expectedAm !== "0" && expectedAm !== "") {
-                        isPaidDirectly = true;
-                        paidTime = txTime;
-                        break;
-                    }
-                }
-
-                // Nếu quét thấy lệnh chuyển tiền, lập tức báo Thành Công ở Frontend
-                if (isPaidDirectly) {
+                if (matchedTx && pollingInterval) {
                     clearInterval(pollingInterval);
                     pollingInterval = null;
                     
-                    document.getElementById('bl-paid-id').innerText = currentId;
-                    document.getElementById('bl-paid-time').innerText = paidTime;
-                    document.getElementById('bl-paid-amount').innerText = (expectedAm ? expectedAm.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : "0") + " VNĐ";
-                    document.getElementById('bl-paid-status').innerText = 'Thành công';
-
-                    document.getElementById('bill-unpaid').style.display = 'none';
-                    document.getElementById('bill-paid').style.display = 'flex';
-                    document.getElementById('bill-failed').style.display = 'none';
-                    
+                    currentTxData.status = "Đã thanh toán"; // Set cứng do được xác nhận từ Bank API
+                    currentTxData.paymentTime = matchedTx["Thời gian"] || "Vừa xong";
+                    renderData(currentTxData);
                     showToast("Thanh toán thành công!");
                 }
             })
-            .catch(e => console.log("Hệ thống đang quét API Bank..."));
+            .catch(e => {});
 
-          // 2. Vẫn kiểm tra API Sheet Cũ để đồng bộ trường hợp Hủy, Lỗi, Quá hạn
-          fetch(GOOGLE_API_URL + "?action=checkStatus&id=" + currentId + "&t=" + new Date().getTime(), { cache: 'no-store' })
-            .then(res => res.json())
-            .then(result => {
-              if (result.success && result.data) {
-                  const statusStr = result.data.status ? String(result.data.status).trim().toLowerCase() : '';
-                  const isSheetPaid = (statusStr.includes('đã thanh toán') || statusStr.includes('thành công'));
-                  const isFailed = (statusStr.includes('thất bại') || statusStr.includes('hủy') || statusStr.includes('lỗi') || statusStr.includes('quá hạn'));
-                  
-                  if (isSheetPaid || isFailed) {
-                      clearInterval(pollingInterval);
-                      pollingInterval = null;
-                      renderData(result.data);
-                      if (isSheetPaid) showToast("Thanh toán thành công!");
-                      if (isFailed) showToast("Giao dịch đã đóng!");
+          // THUẬT TOÁN 2: ĐỒNG THỜI GÕ CỬA GOOGLE SHEET (Dự phòng và bắt Trạng thái Hủy)
+          if (pollingInterval) {
+              fetch(GOOGLE_API_URL + "?action=checkStatus&id=" + currentId + "&t=" + new Date().getTime(), { cache: 'no-store' })
+                .then(res => res.json())
+                .then(result => {
+                  if (result.success && result.data && pollingInterval) {
+                      const statusStr = result.data.status ? String(result.data.status).trim().toLowerCase() : '';
+                      const isPaid = (statusStr.includes('đã thanh toán') || statusStr.includes('thành công'));
+                      const isFailed = (statusStr.includes('thất bại') || statusStr.includes('hủy') || statusStr.includes('lỗi') || statusStr.includes('quá hạn'));
+                      
+                      if (isPaid || isFailed) {
+                          clearInterval(pollingInterval);
+                          pollingInterval = null;
+                          currentTxData = result.data;
+                          renderData(currentTxData);
+                          if (isPaid) showToast("Thanh toán thành công!");
+                          if (isFailed) showToast("Giao dịch đã đóng!");
+                      }
                   }
-              }
-            })
-            .catch(e => console.log("Hệ thống đang quét Sheet..."));
+                })
+                .catch(e => {});
+          }
       };
 
       pollingInterval = setInterval(checkData, 1600); 
