@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Thanh toán online</title>
   
-  <!-- THỦ THUẬT TĂNG TỐC: MỞ SẴN ĐƯỜNG KẾT NỐI ĐẾN GOOGLE VÀ VIETQR -->
   <link rel="preconnect" href="https://script.google.com" crossorigin>
-  <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
   <link rel="preconnect" href="https://img.vietqr.io" crossorigin>
 
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -83,6 +81,9 @@
     
     .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1E293B; color: #fff; padding: 10px 20px; border-radius: 30px; font-size: 12px; font-weight: 600; opacity: 0; visibility: hidden; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
     .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+
+    .spinner { border: 3px solid rgba(29, 78, 216, 0.1); width: 32px; height: 32px; border-radius: 50%; border-left-color: var(--primary); animation: spin 1s linear infinite; margin-bottom: 16px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -90,15 +91,22 @@
 
   <div class="app-container">
 
-    <!-- ERROR (Chỉ hiện khi lỗi) -->
+    <!-- LOADING: Đã khôi phục làm màn hình mặc định -->
+    <div id="screen-loading" class="screen active" style="justify-content: center; align-items: center; height: 100%;">
+      <div class="spinner"></div>
+      <p style="color: var(--text-main); font-size: 14px; font-weight: 700; margin-bottom: 4px;">Đang kết nối hệ thống...</p>
+      <p style="color: var(--text-muted); font-size: 12px; font-weight: 500;">Vui lòng chờ trong giây lát</p>
+    </div>
+
+    <!-- ERROR -->
     <div id="screen-error" class="screen" style="justify-content: center; align-items: center; height: 100%;">
       <div style="font-size: 42px; margin-bottom: 16px;">⚠️</div>
       <h2 style="margin:0 0 8px; font-size: 20px;">Thông báo lỗi</h2>
       <p id="error-msg" style="color: var(--danger); font-size: 13px; text-align: center; line-height: 1.6; padding: 0 16px;">Liên kết không hợp lệ.</p>
     </div>
 
-    <!-- BILL THANH TOÁN (Mặc định hiển thị tức thì) -->
-    <div id="screen-bill" class="screen active">
+    <!-- BILL THANH TOÁN -->
+    <div id="screen-bill" class="screen">
       
       <!-- GIAO DIỆN CHỜ THANH TOÁN -->
       <div id="bill-unpaid" style="display: flex; flex-direction: column; min-height: 100%; justify-content: center;">
@@ -196,8 +204,8 @@
 
   <script>
     // ==========================================
-    // CHỈ SỬ DỤNG APPS SCRIPT API - TẢI 0 GIÂY - QUÉT 1.6S/LẦN
-    // KẾT NỐI MẠNG SIÊU TỐC
+    // CHỈ SỬ DỤNG APPS SCRIPT API - QUÉT 1.6S/LẦN
+    // CÓ HIỂN THỊ MÀN HÌNH LOADING
     // ==========================================
     const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbxGNzPtSc-oZjO-yq3GrqaXrvW1nnqJ-6yOGfD-Jv4ZzxorQQfHFGa9LvtOPg2CmHqv2w/exec";
     
@@ -210,9 +218,12 @@
     let pollingInterval;
 
     function switchScreen(screenName) {
+      document.getElementById('screen-loading').classList.remove('active');
       document.getElementById('screen-error').classList.remove('active');
       document.getElementById('screen-bill').classList.remove('active');
-      document.getElementById('screen-' + screenName).classList.add('active');
+      
+      const targetScreen = document.getElementById('screen-' + screenName);
+      if (targetScreen) targetScreen.classList.add('active');
     }
 
     function showError(msg) {
@@ -224,26 +235,44 @@
     window.onload = function() {
       urlParams = new URLSearchParams(window.location.search);
       currentId = (urlParams.get('id') || "").trim();
-      const am = urlParams.get('am'); 
-      const nd = urlParams.get('nd'); 
       
       if (!currentId) {
         showError("Vui lòng quét QR hoặc truy cập từ link hệ thống cung cấp (Thiếu mã ID).");
         return;
       }
 
-      // TẢI GIAO DIỆN QR TRONG 0 GIÂY
-      renderData({
-          id: currentId,
-          amount: am || "0",
-          content: nd || "---",
-          status: "chờ thanh toán"
-      });
-      switchScreen('bill');
-
-      // BẮT ĐẦU LUỒNG KẾT NỐI HỆ THỐNG NGẦM TỨC THÌ
-      startPolling();
+      // Đảm bảo bật màn hình loading trước khi gọi dữ liệu
+      switchScreen('loading');
+      fetchData();
     };
+
+    function fetchData() {
+      fetch(GOOGLE_API_URL + "?id=" + currentId + "&t=" + new Date().getTime(), { cache: 'no-store' })
+        .then(res => res.json())
+        .then(result => {
+          if (result.success && result.data) {
+            
+            // Ưu tiên điền thông số từ link URL nếu trên Sheet đang rỗng
+            const am = urlParams.get('am'); 
+            const nd = urlParams.get('nd');
+            if (am && (!result.data.amount || result.data.amount === "0" || result.data.amount === "")) result.data.amount = am;
+            if (nd && (!result.data.content || result.data.content === "---" || result.data.content === "")) result.data.content = nd;
+
+            renderData(result.data);
+            switchScreen('bill'); // Mở khóa sang trang bill
+            
+            const statusStr = result.data.status ? String(result.data.status).trim().toLowerCase() : '';
+            if (!(statusStr.includes('đã thanh toán') || statusStr.includes('thành công'))) {
+                startPolling(); // Bắt đầu vòng lặp 1.6s
+            }
+          } else {
+            showError(result.message || "Không tìm thấy dữ liệu giao dịch.");
+          }
+        })
+        .catch(err => {
+          showError("Lỗi kết nối máy chủ dữ liệu. Vui lòng thử lại.");
+        });
+    }
 
     function renderData(data) {
       var statusStr = data.status || '';
@@ -271,32 +300,26 @@
       }
     }
 
-    // QUÉT NGẦM MỖI 1.6 GIÂY / LẦN (SỬ DỤNG FETCH CACHE: 'no-store' ĐỂ LUÔN MỚI)
+    // QUÉT NGẦM MỖI 1.6 GIÂY / LẦN BẰNG APPS SCRIPT
     function startPolling() {
       if(pollingInterval) clearInterval(pollingInterval);
       
       const checkData = function() {
-          // Bắt API làm việc hết công suất với chế độ chống lưu cache
-          fetch(GOOGLE_API_URL + "?id=" + currentId + "&t=" + new Date().getTime(), { cache: 'no-store' })
+          fetch(GOOGLE_API_URL + "?action=checkStatus&id=" + currentId + "&t=" + new Date().getTime(), { cache: 'no-store' })
             .then(res => res.json())
             .then(result => {
               if (result.success && result.data) {
-                  // Đập dữ liệu mới vào UI ngay lập tức
-                  renderData(result.data);
-                  
                   const statusStr = result.data.status ? String(result.data.status).trim().toLowerCase() : '';
                   if (statusStr.includes('đã thanh toán') || statusStr.includes('thành công')) {
                       clearInterval(pollingInterval);
                       pollingInterval = null;
+                      renderData(result.data);
                       showToast("Thanh toán thành công!");
                   }
               }
             })
             .catch(e => console.log("Hệ thống đang quét ngầm..."));
       };
-
-      // Gọi lần 1 ngay lập tức không chần chừ
-      checkData();
 
       // Duy trì vòng lặp 1.6s
       pollingInterval = setInterval(checkData, 1600); 
