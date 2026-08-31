@@ -188,7 +188,7 @@
       100% { transform: scale(1); opacity: 1; } 
     }
     
-    /* Box kết quả mở rộng thoáng đãng hơn */
+    /* Box kết quả */
     .result-box {
       text-align: left; background: rgba(255,255,255,0.85); 
       padding: 6px 18px; border-radius: 20px; border: 1px solid #E2E8F0;
@@ -217,11 +217,46 @@
       z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
     }
     .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+
+    /* Lõi AI Đồng bộ */
+    .loader-card {
+      background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-radius: 28px; padding: 40px 30px; width: 100%; max-width: 320px;
+      box-shadow: 0 20px 40px rgba(37, 99, 235, 0.1), inset 0 1px 0 rgba(255,255,255,0.8);
+      border: 1px solid var(--glass-border);
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      animation: glowPulse 2s infinite alternate;
+    }
+    @keyframes glowPulse {
+      0% { box-shadow: 0 20px 40px rgba(37, 99, 235, 0.05), inset 0 1px 0 rgba(255,255,255,0.8); }
+      100% { box-shadow: 0 20px 50px rgba(139, 92, 246, 0.2), inset 0 1px 0 rgba(255,255,255,0.9); }
+    }
+    
+    .loader-core {
+      position: relative; width: 64px; height: 64px; margin-bottom: 24px;
+      display: flex; justify-content: center; align-items: center;
+    }
+    .loader-ring {
+      position: absolute; width: 100%; height: 100%;
+      border-radius: 50%; border: 3px solid transparent;
+      border-top-color: var(--primary);
+      animation: spinAI 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+    }
+    .loader-ring:nth-child(2) {
+      width: 70%; height: 70%; border-top-color: var(--secondary);
+      animation: spinAI 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite reverse;
+    }
+    .loader-dot {
+      width: 14px; height: 14px; background: var(--primary);
+      border-radius: 50%; box-shadow: 0 0 12px var(--primary);
+      animation: pulseDot 1s ease-in-out infinite alternate;
+    }
+    @keyframes spinAI { 100% { transform: rotate(360deg); } }
+    @keyframes pulseDot { 0% { transform: scale(0.7); opacity: 0.6; } 100% { transform: scale(1.3); opacity: 1; } }
   </style>
 </head>
 <body>
   
-  <!-- Nền Aura -->
   <div class="bg-aura">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
@@ -230,6 +265,19 @@
   <div class="toast" id="toast">Đã sao chép!</div>
 
   <div class="app-container">
+
+    <!-- MÀN HÌNH LOADING -->
+    <div id="screen-loading" class="screen" style="align-items: center;">
+      <div class="loader-card">
+        <div class="loader-core">
+          <div class="loader-ring"></div>
+          <div class="loader-ring"></div>
+          <div class="loader-dot"></div>
+        </div>
+        <p style="color: var(--primary); font-size: 16px; font-weight: 800; margin: 0 0 8px 0; letter-spacing: 0.5px;">ĐANG ĐỒNG BỘ...</p>
+        <p style="color: var(--text-muted); font-size: 13px; font-weight: 600; margin: 0;">Mã hóa dữ liệu bảo mật</p>
+      </div>
+    </div>
 
     <!-- MÀN HÌNH LỖI -->
     <div id="screen-error" class="screen" style="align-items: center;">
@@ -246,7 +294,6 @@
       <!-- 1. GIAO DIỆN CHỜ THANH TOÁN (QR) -->
       <div id="bill-unpaid" style="display: flex; flex-direction: column; width: 100%;">
         <div class="card">
-          <!-- Phân vùng QR -->
           <div class="qr-section">
             <div class="qr-wrapper">
               <div class="ai-scanner"></div>
@@ -258,7 +305,6 @@
             </button>
           </div>
           
-          <!-- Phân vùng thông tin -->
           <div class="info-list">
             <div class="copy-item">
               <div class="copy-info">
@@ -290,7 +336,7 @@
             </div>
             <div class="copy-item" style="margin-bottom: 0;">
               <div class="copy-info">
-                <span class="copy-lbl">Nội dung (Bắt buộc)</span>
+                <span class="copy-lbl">Nội dung (bắt buộc)</span>
                 <span class="copy-val" id="cp-content">---</span>
               </div>
               <button class="btn-copy-icon" onclick="copyText('cp-content')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
@@ -369,26 +415,28 @@
 
   <script>
     // ==============================================================
-    // 🔧 CẤU HÌNH NGÂN HÀNG
+    // 🔧 CẤU HÌNH NGÂN HÀNG (SỬA Ở ĐÂY CHO TỪNG FILE)
     // ==============================================================
     const BANK_ID = 'mb';                      // VD: vcb, timo, cake...
     const BANK_NAME = 'MB Bank';               // Tên hiển thị
     const ACCOUNT_NO = 'VQRQAJLBD8864';        // Số tài khoản của bạn
     const ACCOUNT_NAME = 'DINH VIET TRUONG';   // Tên chủ tài khoản
     
-    // API LỊCH SỬ GIAO DỊCH MỚI
-    const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbyTwyaKpLIydE7u0sosrDOPVCj2VG0xCq1r2Hwda8U6sQ7s7AXNAEIjwNiBnr2zVrJ2/exec";
+    // API CŨ: Quản lý Giao dịch (Lấy thông tin bill + Trạng thái hủy từ Sheet)
+    const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbxGNzPtSc-oZjO-yq3GrqaXrvW1nnqJ-6yOGfD-Jv4ZzxorQQfHFGa9LvtOPg2CmHqv2w/exec";
+    
+    // API MỚI: Check Lịch sử Ngân Hàng Siêu Tốc
+    const BANK_CHECK_API_URL = "https://script.google.com/macros/s/AKfycbyTwyaKpLIydE7u0sosrDOPVCj2VG0xCq1r2Hwda8U6sQ7s7AXNAEIjwNiBnr2zVrJ2/exec";
     // ==============================================================
 
     let currentId = "";
-    let currentAm = "";
-    let currentNd = "";
+    let urlParams;
     let pollingInterval;
 
     function switchScreen(screenName) {
+      document.getElementById('screen-loading').classList.remove('active');
       document.getElementById('screen-error').classList.remove('active');
       document.getElementById('screen-bill').classList.remove('active');
-      
       const targetScreen = document.getElementById('screen-' + screenName);
       if (targetScreen) targetScreen.classList.add('active');
     }
@@ -400,29 +448,57 @@
     }
 
     window.onload = function() {
-      // 1. Gán Tên Ngân Hàng, STK, Chủ TK vào Giao diện từ Cấu Hình
       document.getElementById('cp-bank').innerText = BANK_NAME;
       document.getElementById('cp-acc').innerText = ACCOUNT_NO;
       document.getElementById('cp-name').innerText = ACCOUNT_NAME;
 
       urlParams = new URLSearchParams(window.location.search);
       currentId = (urlParams.get('id') || "").trim();
-      currentAm = (urlParams.get('am') || "").trim(); 
-      currentNd = (urlParams.get('nd') || "").trim(); 
+      const am = urlParams.get('am'); 
+      const nd = urlParams.get('nd'); 
       
-      // ⚠️ LƯU Ý: Với cơ chế check Lịch sử giao dịch mới, URL bắt buộc phải truyền đủ am và nd
-      if (!currentId || !currentAm || !currentNd) {
-        showError("Liên kết không hợp lệ. Vui lòng sử dụng đường link đầy đủ do hệ thống cung cấp.");
+      if (!currentId) {
+        showError("Vui lòng quét QR hoặc truy cập từ link hệ thống cung cấp.");
         return;
       }
 
-      // TẢI GIAO DIỆN QR NGAY LẬP TỨC (0 GIÂY)
-      renderData({ id: currentId, amount: currentAm, content: currentNd, status: "chờ thanh toán" });
-      switchScreen('bill');
-      
-      // BẮT ĐẦU QUÉT NGẦM LỊCH SỬ TỪ API
-      startPolling();
+      if (am && nd) {
+          renderData({ id: currentId, amount: am, content: nd, status: "chờ thanh toán" });
+          switchScreen('bill');
+          startPolling();
+      } else {
+          switchScreen('loading');
+          fetchFirstData();
+      }
     };
+
+    function fetchFirstData() {
+      fetch(GOOGLE_API_URL + "?id=" + currentId + "&t=" + new Date().getTime(), { cache: 'no-store' })
+        .then(res => res.json())
+        .then(result => {
+          if (result.success && result.data) {
+            const am = urlParams.get('am'); 
+            const nd = urlParams.get('nd');
+            if (am && (!result.data.amount || result.data.amount === "0" || result.data.amount === "")) result.data.amount = am;
+            if (nd && (!result.data.content || result.data.content === "---" || result.data.content === "")) result.data.content = nd;
+
+            renderData(result.data);
+            switchScreen('bill');
+            
+            const statusStr = result.data.status ? String(result.data.status).trim().toLowerCase() : '';
+            const isFinished = (statusStr.includes('đã thanh toán') || statusStr.includes('thành công') || statusStr.includes('thất bại') || statusStr.includes('hủy') || statusStr.includes('lỗi') || statusStr.includes('quá hạn'));
+            
+            if (!isFinished) {
+                startPolling();
+            }
+          } else {
+            showError(result.message || "Không tìm thấy dữ liệu giao dịch.");
+          }
+        })
+        .catch(err => {
+          showError("Lỗi kết nối máy chủ dữ liệu. Vui lòng thử lại.");
+        });
+    }
 
     function renderData(data) {
       var statusStr = data.status ? String(data.status).trim().toLowerCase() : '';
@@ -433,24 +509,23 @@
       let rawAmount = String(data.amount).replace(/[^0-9]/g, '');
       let displayAmount = rawAmount && rawAmount !== "0" ? rawAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VNĐ" : "0 VNĐ";
 
-      // 1. Cập nhật khối Chờ Thanh Toán
+      // Khối Chờ Thanh Toán
       document.getElementById('cp-amount').innerText = displayAmount;
       document.getElementById('cp-content').innerText = data.content;
       document.getElementById('qr-img').src = 'https://img.vietqr.io/image/' + BANK_ID + '-' + ACCOUNT_NO + '-qr_only.png?amount=' + rawAmount + '&addInfo=' + encodeURIComponent(data.content || '') + '&accountName=' + encodeURIComponent(ACCOUNT_NAME);
       
-      // 2. Cập nhật khối Đã Thanh Toán (Thành công)
-      document.getElementById('bl-paid-id').innerText = data.id;
+      // Khối Đã Thanh Toán (Thành công)
+      document.getElementById('bl-paid-id').innerText = data.id || currentId;
       document.getElementById('bl-paid-time').innerText = data.paymentTime || '--:--';
       document.getElementById('bl-paid-amount').innerText = displayAmount;
       document.getElementById('bl-paid-status').innerText = 'Thành công';
 
-      // 3. Cập nhật khối Thất Bại / Đã Hủy
-      document.getElementById('bl-failed-id').innerText = data.id;
+      // Khối Thất Bại
+      document.getElementById('bl-failed-id').innerText = data.id || currentId;
       document.getElementById('bl-failed-time').innerText = data.paymentTime || '--:--';
       document.getElementById('bl-failed-amount').innerText = displayAmount;
-      document.getElementById('bl-failed-status').innerText = 'Đã hủy';
+      document.getElementById('bl-failed-status').innerText = data.status || 'Đã hủy';
 
-      // Điều hướng hiển thị màn hình tương ứng
       if (isPaid) {
         document.getElementById('bill-unpaid').style.display = 'none';
         document.getElementById('bill-paid').style.display = 'flex';
@@ -466,60 +541,84 @@
       }
     }
 
-    // QUÉT NGẦM LỊCH SỬ GIAO DỊCH MỖI 1.6 GIÂY
+    // =========================================================
+    // CƠ CHẾ QUÉT KÉP (DUAL POLLING) - 1.6 GIÂY/LẦN
+    // =========================================================
     function startPolling() {
       if(pollingInterval) clearInterval(pollingInterval);
       
-      const targetAm = String(currentAm).replace(/[^0-9]/g, '');
-      const targetNd = String(currentNd).toLowerCase().trim();
-
       const checkData = function() {
-          fetch(GOOGLE_API_URL + "?t=" + new Date().getTime(), { cache: 'no-store' })
+          // 1. Kiểm tra Lịch sử Ngân Hàng trực tiếp (Instant check)
+          fetch(BANK_CHECK_API_URL + "?t=" + new Date().getTime(), { cache: 'no-store' })
             .then(res => res.json())
             .then(result => {
-              // Hỗ trợ xử lý bất kể API trả về mảng trực tiếp hay bọc trong object
-              let records = Array.isArray(result) ? result : (result.data || result);
-              if (!Array.isArray(records)) records = [records]; // Fallback an toàn
+                let transactions = [];
+                if (Array.isArray(result)) transactions = result;
+                else if (result.data && Array.isArray(result.data)) transactions = result.data;
+                else if (typeof result === 'object') transactions = [result];
 
-              let isPaid = false;
-              let paymentTime = "--:--";
+                const expectedAm = String(document.getElementById('cp-amount').innerText).replace(/[^0-9]/g, '');
+                const expectedNd = String(document.getElementById('cp-content').innerText).toLowerCase().trim();
+                const expectedId = currentId.toLowerCase().trim();
 
-              // Quét tìm giao dịch khớp số tiền và mã nội dung
-              for(let i = 0; i < records.length; i++) {
-                 let record = records[i];
-                 if (!record) continue;
-                 
-                 let recordAm = String(record["Số tiền"] || "").replace(/[^0-9]/g, '');
-                 let recordNd = String(record["Nội dung"] || "").toLowerCase();
+                let isPaidDirectly = false;
+                let paidTime = "--:--";
 
-                 // KIỂM TRA ĐIỀU KIỆN KÉP KHẮT KHE
-                 if(recordAm === targetAm && recordNd.includes(targetNd)) {
-                    isPaid = true;
-                    paymentTime = record["Thời gian"] || "--:--";
-                    break;
-                 }
-              }
+                for (let tx of transactions) {
+                    let txAm = String(tx["Số tiền"] || "").replace(/[^0-9]/g, '');
+                    let txNd = String(tx["Nội dung"] || "").toLowerCase();
+                    let txTime = String(tx["Thời gian"] || "");
 
-              if (isPaid) {
-                  clearInterval(pollingInterval);
-                  pollingInterval = null;
+                    // So sánh: đúng tiền VÀ (nội dung chứa ID hoặc tham số ND)
+                    let matchContent = (expectedNd && expectedNd !== "---" && txNd.includes(expectedNd)) || (expectedId && txNd.includes(expectedId));
+
+                    if (matchContent && txAm === expectedAm && expectedAm !== "0" && expectedAm !== "") {
+                        isPaidDirectly = true;
+                        paidTime = txTime;
+                        break;
+                    }
+                }
+
+                // Nếu quét thấy lệnh chuyển tiền, lập tức báo Thành Công ở Frontend
+                if (isPaidDirectly) {
+                    clearInterval(pollingInterval);
+                    pollingInterval = null;
+                    
+                    document.getElementById('bl-paid-id').innerText = currentId;
+                    document.getElementById('bl-paid-time').innerText = paidTime;
+                    document.getElementById('bl-paid-amount').innerText = (expectedAm ? expectedAm.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : "0") + " VNĐ";
+                    document.getElementById('bl-paid-status').innerText = 'Thành công';
+
+                    document.getElementById('bill-unpaid').style.display = 'none';
+                    document.getElementById('bill-paid').style.display = 'flex';
+                    document.getElementById('bill-failed').style.display = 'none';
+                    
+                    showToast("Thanh toán thành công!");
+                }
+            })
+            .catch(e => console.log("Hệ thống đang quét API Bank..."));
+
+          // 2. Vẫn kiểm tra API Sheet Cũ để đồng bộ trường hợp Hủy, Lỗi, Quá hạn
+          fetch(GOOGLE_API_URL + "?action=checkStatus&id=" + currentId + "&t=" + new Date().getTime(), { cache: 'no-store' })
+            .then(res => res.json())
+            .then(result => {
+              if (result.success && result.data) {
+                  const statusStr = result.data.status ? String(result.data.status).trim().toLowerCase() : '';
+                  const isSheetPaid = (statusStr.includes('đã thanh toán') || statusStr.includes('thành công'));
+                  const isFailed = (statusStr.includes('thất bại') || statusStr.includes('hủy') || statusStr.includes('lỗi') || statusStr.includes('quá hạn'));
                   
-                  // Gọi hàm render để tự động chuyển thẻ xanh
-                  renderData({
-                     id: currentId,
-                     amount: currentAm,
-                     content: currentNd,
-                     paymentTime: paymentTime,
-                     status: "thành công"
-                  });
-                  showToast("Thanh toán thành công!");
+                  if (isSheetPaid || isFailed) {
+                      clearInterval(pollingInterval);
+                      pollingInterval = null;
+                      renderData(result.data);
+                      if (isSheetPaid) showToast("Thanh toán thành công!");
+                      if (isFailed) showToast("Giao dịch đã đóng!");
+                  }
               }
             })
-            .catch(e => console.log("Đang quét lịch sử giao dịch..."));
+            .catch(e => console.log("Hệ thống đang quét Sheet..."));
       };
 
-      // Gõ cửa API
-      checkData();
       pollingInterval = setInterval(checkData, 1600); 
     }
 
