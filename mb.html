@@ -198,9 +198,7 @@
     }
     .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
-    /* ==========================================
-       HIỆU ỨNG LOADING MỚI (LÕI AI ĐỒNG BỘ)
-       ========================================== */
+    /* Lõi AI Đồng bộ */
     .loader-card {
       background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border-radius: 28px; padding: 40px 30px; width: 100%; max-width: 320px;
@@ -249,7 +247,7 @@
 
   <div class="app-container">
 
-    <!-- MÀN HÌNH LOADING MỚI ĐẸP HƠN -->
+    <!-- MÀN HÌNH LOADING -->
     <div id="screen-loading" class="screen" style="align-items: center;">
       <div class="loader-card">
         <div class="loader-core">
@@ -332,7 +330,7 @@
         <div class="note-box">
           <ul class="note-list">
             <li><span>•</span> Hệ thống quét mã và duyệt tự động 24/7.</li>
-            <li><span>•</span> Tuyệt đối không sửa số tiền và nội dung chuyển khoản.</li>
+            <li><span>•</span> Tuyệt đối không sửa nội dung chuyển khoản.</li>
           </ul>
         </div>
       </div>
@@ -346,10 +344,21 @@
           <h2 style="margin: 0 0 24px; color: var(--success); font-size: 20px; font-weight: 800;">Thanh toán thành công</h2>
           
           <div style="text-align: left; background: rgba(255,255,255,0.8); padding: 0 16px; border-radius: 16px; border: 1px solid #E2E8F0;">
-            <div class="row"><span class="label">Mã giao dịch</span><span class="value" id="bl-paid-id" style="font-family: monospace;">---</span></div>
-            <div class="row"><span class="label">Thời gian duyệt</span><span class="value" id="bl-paid-time">--:--</span></div>
+            <div class="row">
+              <span class="label">Mã giao dịch</span>
+              <span class="value" id="bl-paid-id" style="font-family: monospace;">---</span>
+            </div>
+            <div class="row">
+              <span class="label">Thời gian duyệt</span>
+              <span class="value" id="bl-paid-time">--:--</span>
+            </div>
+            <div class="row">
+              <span class="label">Số tiền</span>
+              <span class="value" id="bl-paid-amount" style="font-size: 16px;">0 VNĐ</span>
+            </div>
             <div class="row" style="border: none;">
-              <span class="label">Số tiền nhận</span><span class="value" id="bl-paid-amount" style="color: var(--primary); font-size: 16px;">0 VNĐ</span>
+              <span class="label">Trạng thái</span>
+              <span class="value" id="bl-paid-status" style="color: var(--success); text-transform: capitalize;">Thành công</span>
             </div>
           </div>
         </div>
@@ -364,10 +373,21 @@
           <h2 style="margin: 0 0 24px; color: var(--danger); font-size: 20px; font-weight: 800;">Giao dịch thất bại</h2>
           
           <div style="text-align: left; background: rgba(255,255,255,0.9); padding: 0 16px; border-radius: 16px; border: 1px solid #FCA5A5;">
-            <div class="row"><span class="label">Mã giao dịch</span><span class="value" id="bl-failed-id" style="font-family: monospace;">---</span></div>
-            <div class="row"><span class="label">Trạng thái</span><span class="value" id="bl-failed-status" style="color: var(--danger); text-transform: capitalize;">Đã hủy</span></div>
+            <div class="row">
+              <span class="label">Mã giao dịch</span>
+              <span class="value" id="bl-failed-id" style="font-family: monospace;">---</span>
+            </div>
+            <div class="row">
+              <span class="label">Thời gian tạo</span>
+              <span class="value" id="bl-failed-time">--:--</span>
+            </div>
+            <div class="row">
+              <span class="label">Số tiền</span>
+              <span class="value" id="bl-failed-amount" style="font-size: 16px;">0 VNĐ</span>
+            </div>
             <div class="row" style="border: none;">
-              <span class="label">Số tiền</span><span class="value" id="bl-failed-amount" style="font-size: 16px;">0 VNĐ</span>
+              <span class="label">Trạng thái</span>
+              <span class="value" id="bl-failed-status" style="color: var(--danger); text-transform: capitalize;">Đã hủy</span>
             </div>
           </div>
         </div>
@@ -380,10 +400,10 @@
     // ==============================================================
     // 🔧 CẤU HÌNH NGÂN HÀNG (SỬA Ở ĐÂY CHO TỪNG FILE)
     // ==============================================================
-    const BANK_ID = 'mb';                      
-    const BANK_NAME = 'MB Bank';               
-    const ACCOUNT_NO = 'VQRQAJLBD8864';        
-    const ACCOUNT_NAME = 'DINH VIET TRUONG';   
+    const BANK_ID = 'mb';                      // VD: vcb, timo, cake...
+    const BANK_NAME = 'MB Bank';               // Tên hiển thị
+    const ACCOUNT_NO = 'VQRQAJLBD8864';        // Số tài khoản của bạn
+    const ACCOUNT_NAME = 'DINH VIET TRUONG';   // Tên chủ tài khoản
     
     // API Google Apps Script của bạn
     const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbxGNzPtSc-oZjO-yq3GrqaXrvW1nnqJ-6yOGfD-Jv4ZzxorQQfHFGa9LvtOPg2CmHqv2w/exec";
@@ -473,20 +493,22 @@
       let rawAmount = String(data.amount).replace(/[^0-9]/g, '');
       let displayAmount = rawAmount && rawAmount !== "0" ? rawAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VNĐ" : "0 VNĐ";
 
-      // Điền thông tin Thẻ Chờ Thanh Toán
+      // 1. Cập nhật khối Chờ Thanh Toán
       document.getElementById('cp-amount').innerText = displayAmount;
       document.getElementById('cp-content').innerText = data.content;
       document.getElementById('qr-img').src = 'https://img.vietqr.io/image/' + BANK_ID + '-' + ACCOUNT_NO + '-qr_only.png?amount=' + rawAmount + '&addInfo=' + encodeURIComponent(data.content || '') + '&accountName=' + encodeURIComponent(ACCOUNT_NAME);
       
-      // Điền thông tin Thẻ Đã Thanh Toán (Màu Xanh)
+      // 2. Cập nhật khối Đã Thanh Toán (Thành công)
       document.getElementById('bl-paid-id').innerText = data.id;
       document.getElementById('bl-paid-time').innerText = data.paymentTime || '--:--';
       document.getElementById('bl-paid-amount').innerText = displayAmount;
+      document.getElementById('bl-paid-status').innerText = data.status || 'Thành công';
 
-      // Điền thông tin Thẻ Thất Bại (Màu Đỏ)
+      // 3. Cập nhật khối Thất Bại / Đã Hủy
       document.getElementById('bl-failed-id').innerText = data.id;
-      document.getElementById('bl-failed-status').innerText = data.status || 'Đã hủy';
+      document.getElementById('bl-failed-time').innerText = data.paymentTime || '--:--';
       document.getElementById('bl-failed-amount').innerText = displayAmount;
+      document.getElementById('bl-failed-status').innerText = data.status || 'Đã hủy';
 
       // Điều hướng hiển thị màn hình tương ứng
       if (isPaid) {
